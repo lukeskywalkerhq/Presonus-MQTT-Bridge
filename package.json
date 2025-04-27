@@ -11,8 +11,8 @@
     "lint": "standardx src/**/*.ts | snazzy",
     "lint:fix": "standardx --fix src/**/*.ts | snazzy",
     "install": "npm run --silent transpile",
-    "test": "sucrase-node test.ts | bunyan",
-    "test:debug": "cross-env DEBUG=1 sucrase-node test.ts | bunyan"
+    "test": "sucrase-node presonus.ts | bunyan",
+    "test:debug": "cross-env DEBUG=1 sucrase-node presonus.ts | bunyan"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,10 @@
   "homepage": "https://featherbear.cc/presonus-studiolive-api",
   "dependencies": {
     "bunyan": "^1.8.15",
-    "queue": "^6.0.1"
+    "mqtt": "^5.10.4",
+    "queue": "^6.0.1",
+    "simple-git": "^3.27.0",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@types/bunyan": "^1.8.11",
