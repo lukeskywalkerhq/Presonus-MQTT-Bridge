@@ -2,7 +2,7 @@ import * as fsPromises from 'fs/promises'; // For async operations
 import * as fs from 'fs'; // For sync operations
 import { simpleGit, SimpleGit, CleanOptions } from 'simple-git';
 import * as path from 'path';
-import {updateSensor} from "./mqtt";
+import {MQTTEvent, subscribeMQTT, updateSensor} from "./mqtt";
 
 let options: any = null; // Declare options in main.ts
 
@@ -78,6 +78,9 @@ async function connect(): any {
 
         const { connectPresonus } = await import("./presonus");
         await connectPresonus(options.presonusOptions); // Pass the loaded option
+
+        const topic = "presonus/#";
+        subscribeMQTT(topic, MQTTEvent);
     } else {
         console.error("Failed to load configuration");
     }

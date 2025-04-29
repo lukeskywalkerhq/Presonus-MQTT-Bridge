@@ -1,9 +1,114 @@
 import * as mqtt from 'mqtt';
+import {updatePresonusMute} from "./presonus";
 
 let mqttClient: mqtt.MqttClient | null = null;
 let mqttStatus = "disconnected";
 
 let prefix:string = null;
+
+export async function updatePeak(data:any ){
+    const names = data.name.split("/")
+    const type = names[0]
+    const ch = names[1].slice(2)
+    const value = type + " " + ch
+    const topic = "system/peak"
+    await updateSensor(topic, value, false)
+}
+
+export async function updateLastAction(data: any){
+    const name = data.name
+    const topic = "system/last_action"
+    await updateSensor(topic, name, false)
+}
+
+export async function updateScreen(data: any){
+    const name = data.split("/")[1]
+    const topic = "system/screen"
+    await updateSensor(topic, name, false)
+}
+
+export async function updateMainFader(data: any) {
+    //todo add checks
+    const mixlist = ["line", "return", "fxreturn", "talkback", "aux", "fx", "main", "mono", "master"];
+
+    for (let i = 0; i < mixlist.length; i++) {
+        const type = mixlist[i].toUpperCase(); // Assuming keys in 'data' are uppercase
+
+        if (data.hasOwnProperty(type)) {
+            const channels = data[type];
+
+            if (channels && Array.isArray(channels)) {
+                for (let ch = 1; ch <= channels.length; ch++) {
+                    const topic = `main1/${mixlist[i]}/${ch}/level/state`;
+                    const value = (channels[ch - 1] * 100).toFixed(1);
+                    await updateSensor(topic, value, false);
+                }
+            }
+        }
+    }
+}
+
+export async function updateAuxFader(data){
+    const names = data.name.split("/")
+    const type = names[0]
+    const channel = names[1].slice(2)
+    const mix = names[2]
+    const topic = mix + '/' +  type + '/' + channel + '/level/state'
+    const value = (data.value * 100).toFixed(1)
+    await updateSensor(topic, value, false)
+}
+
+export async function updateSolo(data){
+    //todo add masters and returns
+    // fx and fxreturns dont have solo
+    //todo check for options to see if enabled
+    const names = data.name.split("/")
+    const channel = names[1].slice(2)
+    const topic :string = 'main1/solo/' + channel + '/solo/state'
+    await updateSensor(topic, data.value ? 'Soloed' : 'Unsoloed', false)
+}
+
+export async function updateAuxMute(data: any){
+    //todo add check
+    const names = data.name.split("/")
+    const channel = names[1].slice(2)
+    const mix = names[2].split("_")[1]
+    const topic :string = mix + '/line/' + channel + '/mute/state'
+    await updateSensor(topic, data.value ? 'Muted' : 'Unmuted', false)
+}
+
+export async function updateMainMute(data: any){
+    //todo check for options to see if enabled
+    const names = data.name.split("/")
+    const channel = names[1].slice(2)
+    const topic :string = 'main1/line/' + channel + '/mute/state'
+    await updateSensor(topic, data.value ? 'Muted' : 'Unmuted', false)
+    //todo add check to see if muted on all other mixes
+}
+
+export async function updateSelect(data: any): Promise<void> {
+    const names = data.name.split("/");
+    const name = names[0] + " " + names[1].slice(2);
+    await updateSensor('system/selected_channel', name, false);
+}
+
+export async function updateScene(scene: string){
+    await updateSensor("system/scene", scene);
+}
+
+export async function updateProject(project: string){
+    await updateSensor("system/project", project);
+}
+
+export async function sync(channels, options): Promise<boolean> {
+    //todo get state of board and push to mqtt
+}
+
+export async function enableChannels(options: any) {
+    await updateSensor('fx', options.fx ? 'Online' : 'Offline', true);
+    await updateSensor('aux', options.aux ? 'Online' : 'Offline', true);
+    await updateSensor('main', options.main ? 'Online' : 'Offline', true);
+}
 
 export function getMQTTStatus(): string {
     return mqttStatus;
@@ -104,7 +209,6 @@ export async function updateSensor(location: string, message: string, retain: bo
     console.log(`Published to ${topic}: ${message} (retain: ${retain})\n`);
 }
 
-// Example function to publish a message
 async function publishMQTT(topic: string, message: string, retain: boolean = false): Promise<void> {
     if (mqttClient && mqttClient.connected) {
         return new Promise((resolve, reject) => {
@@ -124,7 +228,6 @@ async function publishMQTT(topic: string, message: string, retain: boolean = fal
     }
 }
 
-// Example function to subscribe to a topic
 export function subscribeMQTT(topic: string, messageCallback: (topic: string, message: Buffer) => void): void {
     if (mqttClient && mqttClient.connected) {
         mqttClient.subscribe(topic, (err) => {
@@ -138,6 +241,13 @@ export function subscribeMQTT(topic: string, messageCallback: (topic: string, me
         mqttClient.on('message', messageCallback);
     } else {
         console.error('MQTT client is not connected. Cannot subscribe.');
+    }
+}
+
+export async function MQTTEvent(topic: string, message: Buffer){
+    console.log("topic : " + topic + " Updated to : " + message);
+    if (topic.includes("mute") && topic.includes("set")) {
+        await updatePresonusMute(topic, message.toString('utf-8'));
     }
 }
 

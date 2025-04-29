@@ -1,34 +1,43 @@
-import { Client, MessageCode, SettingType } from './my-repo/src/api';
-import {getMQTTStatus, publishDiscoveryData, updateSensor} from "./mqtt";
-import { json } from "node:stream/consumers";
+import { Client } from './my-repo/src/api';
+import { MessageCode } from './my-repo/src/api'
+import {
+    enableChannels,
+    sync,
+    updateAuxFader,
+    updateAuxMute, updateLastAction, updateMainFader,
+    updateMainMute, updatePeak,
+    updateProject,
+    updateScene, updateScreen,
+    updateSelect,
+    updateSensor,
+    updateSolo
+} from "./mqtt";
 import { createJson } from "./discovery_json";
-import channelCount from "./my-repo/src/lib/types/ChannelCount";
-import { strictEqual } from "node:assert";
-import {after} from "node:test";
-import {getChannelType} from "./dataTypes";
+import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 
 let clientPresonus: Client | null = null; // Initialize as null
 
-async function updateSelect(data: any): Promise<void> {
-    const names = data.name.split("/");
-    const name = names[0] + " " + names[1];
-    await updateSensor('system/selected_channel', name, false);
+export async function updatePresonusMute(topic: string, state: string){
+    const topics: string[] = topic.split("/")
+    const mix: string = topics[1]
+    const type: string = topics[2].toUpperCase()
+    const ch: number = Number(topics[3])
+
+    let muteState: boolean;
+    if(state == "Muted"){
+        muteState = true;
+    } else if(state == "Unmuted"){
+        muteState = false;
+    }
+
+    const selected: channelSelector = {
+        type: type,
+        channel: ch
+    }
+
+    clientPresonus.setMute(selected, muteState)
 }
 
-async function sync(channels, options): Promise<boolean> {
-
-    let scene = clientPresonus.currentScene;
-    let project = clientPresonus.currentProject;
-
-    await updateSensor("system/scene", scene);
-    await updateSensor("system/project", project);
-}
-
-async function enableChannels(options: any) {
-    await updateSensor('fx', options.fx ? 'Online' : 'Offline', true);
-    await updateSensor('aux', options.aux ? 'Online' : 'Offline', true);
-    await updateSensor('main', options.main ? 'Online' : 'Offline', true);
-}
 
 export async function connectPresonus(options: any): Promise<boolean> {
     if (!options) {
@@ -66,6 +75,8 @@ export async function connectPresonus(options: any): Promise<boolean> {
         await updateSensor('system/status', 'Configuring', false);
         createJson(channels, options);
         await updateSensor('system/status', 'Syncing', false);
+        await updateScene(clientPresonus.currentScene)
+        await updateProject(clientPresonus.currentProject)
         await sync(channels, options);
         await updateSensor('system/status', 'Enabling', false);
         await enableChannels(options);
@@ -76,8 +87,25 @@ export async function connectPresonus(options: any): Promise<boolean> {
         console.log(`Received ${code}:`);
         console.dir(data);
 
+        //todo add mutegroups
         if (code == "PV" && data.name.includes("select")){
             updateSelect(data);
+        } else if (code == "PV" && data.name.includes("mute")){
+            updateMainMute(data);
+        } else if (code == "PV" && data.name.includes("assign")){
+            updateAuxMute(data);
+        } else if (code == "PV" && data.name.includes("solo")){
+            updateSolo(data);
+        } else if (code == "PV" && data.name.includes("mainscreen")){
+            updateScreen(data);
+        } else if (code == "PV" && data.name.includes("clip")){
+            updatePeak(data);
+        } else if (code == "PV"){
+            updateAuxFader(data);
+        } else if (code == "MS"){
+            updateMainFader(data);
+        } else {
+            updateLastAction(data);
         }
 
     });
