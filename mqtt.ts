@@ -1,12 +1,23 @@
 import * as mqtt from 'mqtt';
-import {updatePresonusMute} from "./presonus";
+import {updatePresonusFader, updatePresonusMute} from "./presonus";
 
 let mqttClient: mqtt.MqttClient | null = null;
 let mqttStatus = "disconnected";
 
 let prefix:string = null;
 
-export async function updatePeak(data:any ){
+export async function updateMQTTColor(data: any){
+    const type: string = data.name.split("/")[0];
+    const ch: string = data.name.split("/")[1].slice(2);
+    const value: string = data.value
+    const name: string = type + "_" + ch
+
+    const topic: string = "presonus/main_1/color/" + name + "/rgb/state";
+
+    await updateSensor(topic, value);
+}
+
+export async function updateMQTTPeak(data: any){
     const names = data.name.split("/")
     const type = names[0]
     const ch = names[1].slice(2)
@@ -15,19 +26,19 @@ export async function updatePeak(data:any ){
     await updateSensor(topic, value, false)
 }
 
-export async function updateLastAction(data: any){
+export async function updateMQTTLastAction(data: any){
     const name = data.name
     const topic = "system/last_action"
     await updateSensor(topic, name, false)
 }
 
-export async function updateScreen(data: any){
-    const name = data.split("/")[1]
+export async function updateMQTTScreen(data: any){
+    const name = data.name.split("/")[1]
     const topic = "system/screen"
     await updateSensor(topic, name, false)
 }
 
-export async function updateMainFader(data: any) {
+export async function updateMQTTMainFader(data: any) {
     //todo add checks
     const mixlist = ["line", "return", "fxreturn", "talkback", "aux", "fx", "main", "mono", "master"];
 
@@ -39,8 +50,8 @@ export async function updateMainFader(data: any) {
 
             if (channels && Array.isArray(channels)) {
                 for (let ch = 1; ch <= channels.length; ch++) {
-                    const topic = `main1/${mixlist[i]}/${ch}/level/state`;
-                    const value = (channels[ch - 1] * 100).toFixed(1);
+                    const topic = `main1/${mixlist[i]}/${ch}/fader/state`;
+                    const value = channels[ch - 1].toFixed(1);
                     await updateSensor(topic, value, false);
                 }
             }
@@ -48,7 +59,7 @@ export async function updateMainFader(data: any) {
     }
 }
 
-export async function updateAuxFader(data){
+export async function updateMQTTAuxFader(data){
     const names = data.name.split("/")
     const type = names[0]
     const channel = names[1].slice(2)
@@ -58,7 +69,7 @@ export async function updateAuxFader(data){
     await updateSensor(topic, value, false)
 }
 
-export async function updateSolo(data){
+export async function updateMQTTSolo(data){
     //todo add masters and returns
     // fx and fxreturns dont have solo
     //todo check for options to see if enabled
@@ -68,7 +79,7 @@ export async function updateSolo(data){
     await updateSensor(topic, data.value ? 'Soloed' : 'Unsoloed', false)
 }
 
-export async function updateAuxMute(data: any){
+export async function updateMQTTAuxMute(data: any){
     //todo add check
     const names = data.name.split("/")
     const channel = names[1].slice(2)
@@ -77,7 +88,7 @@ export async function updateAuxMute(data: any){
     await updateSensor(topic, data.value ? 'Muted' : 'Unmuted', false)
 }
 
-export async function updateMainMute(data: any){
+export async function updateMQTTMainMute(data: any){
     //todo check for options to see if enabled
     const names = data.name.split("/")
     const channel = names[1].slice(2)
@@ -86,17 +97,17 @@ export async function updateMainMute(data: any){
     //todo add check to see if muted on all other mixes
 }
 
-export async function updateSelect(data: any): Promise<void> {
+export async function updateMQTTSelect(data: any): Promise<void> {
     const names = data.name.split("/");
     const name = names[0] + " " + names[1].slice(2);
     await updateSensor('system/selected_channel', name, false);
 }
 
-export async function updateScene(scene: string){
+export async function updateMQTTScene(scene: string){
     await updateSensor("system/scene", scene);
 }
 
-export async function updateProject(project: string){
+export async function updateMQTTProject(project: string){
     await updateSensor("system/project", project);
 }
 
@@ -146,7 +157,7 @@ export async function publishDiscoveryData(discoveryPayload: any) {
     }
 
     // Publish the entire batch with a single delay
-    const publishDelay = 1000; // Adjust this delay as needed
+    const publishDelay = 100; // Adjust this delay as needed
     await new Promise(resolve => setTimeout(resolve, publishDelay));
 
     for (const item of batchPayload) {
@@ -245,9 +256,14 @@ export function subscribeMQTT(topic: string, messageCallback: (topic: string, me
 }
 
 export async function MQTTEvent(topic: string, message: Buffer){
+    //todo remove mqtt topic header
     console.log("topic : " + topic + " Updated to : " + message);
+
     if (topic.includes("mute") && topic.includes("set")) {
         await updatePresonusMute(topic, message.toString('utf-8'));
+    }
+    else if (topic.includes("fader") && topic.includes("set")) {
+        await updatePresonusFader(topic, message.toString('utf-8'))
     }
 }
 

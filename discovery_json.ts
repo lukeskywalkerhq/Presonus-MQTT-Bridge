@@ -1,5 +1,4 @@
 import {getChannelType, getSpecialInputConfig, getSupportedFeatures} from "./dataTypes";
-import {type} from "node:os";
 import {publishDiscoveryData} from "./mqtt";
 
 const manufacturer = "Presonus"
@@ -59,7 +58,7 @@ interface inputInterfaces{
     enabled: boolean;
 }
 
-
+//todo rewrite this
 async function staticJson(){
     const systemGroup: { device_groups: DeviceGroupConfig[] } = { // Explicitly type the outer object
         device_groups: [
@@ -175,6 +174,7 @@ function getColor(mix: string, mixNumber: number, type: string, typeNumber: numb
 
     const friendlyName = `${mix.charAt(0).toUpperCase() + mix.slice(1)} ${mixNumberString} ${type.charAt(0).toUpperCase() + type.slice(1)} ${typeNumberString} Color`;
 
+    //todo add colors for return
     // Add JSON data for RGB light
     const lightDevice: DeviceConfig = {
         type: "light",
@@ -208,6 +208,7 @@ function getColor(mix: string, mixNumber: number, type: string, typeNumber: numb
 }
 
 function getSolo(mix: string, mixNumber: number, type: string, typeNumber: number): DeviceConfig[] {
+    //todo add solo for return, main, mono
     const allJson: DeviceConfig[] = [];
 
     const baseId = `${mix.toLowerCase()}_${mixNumber}_${type.toLowerCase()}_${typeNumber}`;
@@ -241,6 +242,9 @@ function getSolo(mix: string, mixNumber: number, type: string, typeNumber: numbe
 }
 
 function getMuteAndFader(mix: string, mixNumber: number, type: string, typeNumber:number): DeviceConfig[] {
+    //todo add seperate mute and fader
+    //todo add mute and fader options to config
+    //todo add mute and fader option for mixes, masters, main, mono
     const allJson: DeviceConfig[] = [];
     const specialJson = getSpecialInputConfig(type); // Special JSON that differs between types
 
@@ -278,8 +282,8 @@ function getMuteAndFader(mix: string, mixNumber: number, type: string, typeNumbe
         config: {
             name: `${friendlyName} Level`,
             unique_id: `${baseId}_level`,
-            state_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/level/state`,
-            command_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/set`,
+            state_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/fader/state`,
+            command_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/fader/set`,
             availability_topic: `presonus/${mix}`,
             payload_available: "Online",
             payload_not_available: "Offline",
@@ -295,6 +299,7 @@ function getMuteAndFader(mix: string, mixNumber: number, type: string, typeNumbe
     return allJson;
 }
 
+//todo make this better, and simplify it
 async function jsonloop(mixes: mixGroup[], inputs: inputInterfaces[], options: any) {
 
     await staticJson()

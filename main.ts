@@ -2,7 +2,7 @@ import * as fsPromises from 'fs/promises'; // For async operations
 import * as fs from 'fs'; // For sync operations
 import { simpleGit, SimpleGit, CleanOptions } from 'simple-git';
 import * as path from 'path';
-import {MQTTEvent, subscribeMQTT, updateSensor} from "./mqtt";
+import {MQTTEvent, subscribeMQTT} from "./mqtt";
 
 let options: any = null; // Declare options in main.ts
 

@@ -1,25 +1,59 @@
 import { Client } from './my-repo/src/api';
-import { MessageCode } from './my-repo/src/api'
 import {
     enableChannels,
     sync,
-    updateAuxFader,
-    updateAuxMute, updateLastAction, updateMainFader,
-    updateMainMute, updatePeak,
-    updateProject,
-    updateScene, updateScreen,
-    updateSelect,
+    updateMQTTAuxFader,
+    updateMQTTAuxMute, updateMQTTLastAction, updateMQTTMainFader,
+    updateMQTTMainMute, updateMQTTPeak,
+    updateMQTTProject,
+    updateMQTTScene, updateMQTTScreen,
+    updateMQTTSelect,
     updateSensor,
-    updateSolo
+    updateMQTTSolo
 } from "./mqtt";
 import { createJson } from "./discovery_json";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 
 let clientPresonus: Client | null = null; // Initialize as null
 
-export async function updatePresonusMute(topic: string, state: string){
+export async function updatePresonusFader(topic: string, state: string){
+    //Ex: Topic : presonus/main1/line/1/fader/set State: 11.3
+
+    //todo add mix, main, mono
+
     const topics: string[] = topic.split("/")
-    const mix: string = topics[1]
+    const mix: string = topics[1].replace(/[0-9]/g, '').toUpperCase();
+    const mixCh: number = topics[1].replace(/\D/g,'');
+    const type: string = topics[2].toUpperCase()
+    const ch: number = Number(topics[3])
+    const level: number = Number(state)
+
+    let selected: channelSelector = null;
+
+    if (mix == "FX" || mix == "AUX"){
+        selected = {
+            type: type,
+            channel: ch,
+            mixType: mix,
+            mixNumber: mixCh
+        }
+    } else {
+        selected = {
+            type: type,
+            channel: ch
+        }
+    }
+
+    await clientPresonus.setChannelVolumeLinear(selected, level)
+
+}
+
+export async function updatePresonusMute(topic: string, state: string){
+    //todo add mute options for auxs, fx
+    // Example Data: Topic : presonus/main1/line/1/mute/state State : Unmuted
+    const topics: string[] = topic.split("/")
+    const mix: string = topics[1].replace(/[0-9]/g, '').toUpperCase();
+    const mixCh: number = topics[1].replace(/\D/g,'');
     const type: string = topics[2].toUpperCase()
     const ch: number = Number(topics[3])
 
@@ -30,10 +64,23 @@ export async function updatePresonusMute(topic: string, state: string){
         muteState = false;
     }
 
-    const selected: channelSelector = {
-        type: type,
-        channel: ch
+    let selected: channelSelector = null;
+
+    if (mix == "FX" || mix == "AUX"){
+        selected = {
+            type: type,
+            channel: ch,
+            mixType: mix,
+            mixNumber: mixCh
+        }
+    } else {
+        selected = {
+            type: type,
+            channel: ch
+        }
     }
+
+    console.log(selected);
 
     clientPresonus.setMute(selected, muteState)
 }
@@ -75,8 +122,8 @@ export async function connectPresonus(options: any): Promise<boolean> {
         await updateSensor('system/status', 'Configuring', false);
         createJson(channels, options);
         await updateSensor('system/status', 'Syncing', false);
-        await updateScene(clientPresonus.currentScene)
-        await updateProject(clientPresonus.currentProject)
+        await updateMQTTScene(clientPresonus.currentScene)
+        await updateMQTTProject(clientPresonus.currentProject)
         await sync(channels, options);
         await updateSensor('system/status', 'Enabling', false);
         await enableChannels(options);
@@ -88,24 +135,25 @@ export async function connectPresonus(options: any): Promise<boolean> {
         console.dir(data);
 
         //todo add mutegroups
+        //todo add color update
         if (code == "PV" && data.name.includes("select")){
-            updateSelect(data);
+            updateMQTTSelect(data);
         } else if (code == "PV" && data.name.includes("mute")){
-            updateMainMute(data);
+            updateMQTTMainMute(data);
         } else if (code == "PV" && data.name.includes("assign")){
-            updateAuxMute(data);
+            updateMQTTAuxMute(data);
         } else if (code == "PV" && data.name.includes("solo")){
-            updateSolo(data);
+            updateMQTTSolo(data);
         } else if (code == "PV" && data.name.includes("mainscreen")){
-            updateScreen(data);
+            updateMQTTScreen(data);
         } else if (code == "PV" && data.name.includes("clip")){
-            updatePeak(data);
+            updateMQTTPeak(data);
         } else if (code == "PV"){
-            updateAuxFader(data);
+            updateMQTTAuxFader(data);
         } else if (code == "MS"){
-            updateMainFader(data);
+            updateMQTTMainFader(data);
         } else {
-            updateLastAction(data);
+            updateMQTTLastAction(data);
         }
 
     });
