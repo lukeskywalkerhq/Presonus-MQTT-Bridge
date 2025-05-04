@@ -16,46 +16,46 @@ import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 
 let clientPresonus: Client | null = null; // Initialize as null
 
-export async function updatePresonusFader(topic: string, state: string){
-    //Ex: Topic : presonus/main1/line/1/fader/set State: 11.3
+export async function updatePresonusColor(topic: string, state: string) {
+    const selected: channelSelector = getChannelSelector(topic)
+    const colorChannels = state.split(",")
+    const red = Number(colorChannels[0]).toString(16)
+    const green = Number(colorChannels[1]).toString(16)
+    const blue = Number(colorChannels[2]).toString(16)
+    const hex = red + green + blue
 
-    //todo add mix, main, mono
+    clientPresonus.setColor(selected, hex);
+}
 
-    const topics: string[] = topic.split("/")
-    const mix: string = topics[1].replace(/[0-9]/g, '').toUpperCase();
-    const mixCh: number = topics[1].replace(/\D/g,'');
-    const type: string = topics[2].toUpperCase()
-    const ch: number = Number(topics[3])
-    const level: number = Number(state)
+export async function updatePresonusSolo(topic: string, state: string){
 
-    let selected: channelSelector = null;
+    const selected = getChannelSelector(topic)
 
-    if (mix == "FX" || mix == "AUX"){
-        selected = {
-            type: type,
-            channel: ch,
-            mixType: mix,
-            mixNumber: mixCh
-        }
-    } else {
-        selected = {
-            type: type,
-            channel: ch
-        }
+    let soloState: boolean;
+    if(state == "Soloed"){
+        soloState = true;
+    } else if(state == "Unsoloed"){
+        soloState = false;
     }
 
-    await clientPresonus.setChannelVolumeLinear(selected, level)
+    clientPresonus.setSolo(selected, soloState);
+}
 
+export async function updatePresonusFader(topic: string, state: string){
+    //Ex: Topic : presonus/main1/line/1/fader/set State: 11.3
+    //todo add mix, main, mono
+
+    const selected = getChannelSelector(topic)
+    const level: number = Number(state)
+
+    await clientPresonus.setChannelVolumeLinear(selected, level)
 }
 
 export async function updatePresonusMute(topic: string, state: string){
     //todo add mute options for auxs, fx
     // Example Data: Topic : presonus/main1/line/1/mute/state State : Unmuted
-    const topics: string[] = topic.split("/")
-    const mix: string = topics[1].replace(/[0-9]/g, '').toUpperCase();
-    const mixCh: number = topics[1].replace(/\D/g,'');
-    const type: string = topics[2].toUpperCase()
-    const ch: number = Number(topics[3])
+
+    const selected = getChannelSelector(topic)
 
     let muteState: boolean;
     if(state == "Muted"){
@@ -64,7 +64,21 @@ export async function updatePresonusMute(topic: string, state: string){
         muteState = false;
     }
 
+    clientPresonus.setMute(selected, muteState)
+}
+
+function getChannelSelector(topic: string){
+    const topics: string[] = topic.split("/")
+    const mix: string = topics[1].replace(/[0-9]/g, '').toUpperCase();
+    const mixCh: number = topics[1].replace(/\D/g,'');
+    let type: string = topics[2].toUpperCase()
+    const ch: number = Number(topics[3])
+
     let selected: channelSelector = null;
+
+    if (type == "SOLO" || type == "COLOR"){
+        type = "LINE"
+    }
 
     if (mix == "FX" || mix == "AUX"){
         selected = {
@@ -80,11 +94,10 @@ export async function updatePresonusMute(topic: string, state: string){
         }
     }
 
-    console.log(selected);
-
-    clientPresonus.setMute(selected, muteState)
+    console.log(topic)
+    console.log(selected)
+    return selected;
 }
-
 
 export async function connectPresonus(options: any): Promise<boolean> {
     if (!options) {

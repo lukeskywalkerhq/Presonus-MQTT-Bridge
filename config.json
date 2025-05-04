@@ -1,9 +1,19 @@
 {
+  "system": {
+    "HomeAssistantAutoConfig": true,
+    "periodicResync": true,
+    "resyncTime": 1
+  },
   "presonusOptions": {
     "ip": "10.10.11.45",
     "port": 53000,
     "autoreconnect": true,
+    "reconnectPeriod": 2000,
     "line": true,
+    "mute": true,
+    "fader": true,
+    "pan": true,
+    "link": true,
     "aux": true,
     "fx": true,
     "fxreturn": true,
@@ -22,10 +32,5 @@
     "connectTimeout": 5000,
     "reconnectPeriod": 2000,
     "prefix": "mqtt"
-  },
-  "system": {
-    "HomeAssistantAutoConfig": true,
-    "periodicResync": true,
-    "resyncTime": 10
   }
 }

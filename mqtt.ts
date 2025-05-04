@@ -1,10 +1,11 @@
 import * as mqtt from 'mqtt';
-import {updatePresonusFader, updatePresonusMute} from "./presonus";
+import {updatePresonusColor, updatePresonusFader, updatePresonusMute, updatePresonusSolo} from "./presonus";
 
 let mqttClient: mqtt.MqttClient | null = null;
 let mqttStatus = "disconnected";
 
 let prefix:string = null;
+let mqttOptions = null;
 
 export async function updateMQTTColor(data: any){
     const type: string = data.name.split("/")[0];
@@ -181,6 +182,8 @@ export async function connectMQTT(mqttConfig: any): Promise<void> {
         return;
     }
 
+    mqttOptions = mqttConfig;
+
     const options: mqtt.IClientOptions = {
         clientId: mqttConfig.clientId || `mqttjs_${Math.random().toString(16).substr(2, 8)}`,
         username: mqttConfig.username,
@@ -256,14 +259,21 @@ export function subscribeMQTT(topic: string, messageCallback: (topic: string, me
 }
 
 export async function MQTTEvent(topic: string, message: Buffer){
-    //todo remove mqtt topic header
-    console.log("topic : " + topic + " Updated to : " + message);
+    if (topic.includes("set")){
+        console.log("topic : " + topic + " Updated to : " + message);
 
-    if (topic.includes("mute") && topic.includes("set")) {
-        await updatePresonusMute(topic, message.toString('utf-8'));
-    }
-    else if (topic.includes("fader") && topic.includes("set")) {
-        await updatePresonusFader(topic, message.toString('utf-8'))
+        if (topic.includes("mute")) {
+            await updatePresonusMute(topic, message.toString('utf-8'));
+        }
+        else if (topic.includes("fader")) {
+            await updatePresonusFader(topic, message.toString('utf-8'))
+        }
+        else if (topic.includes("solo")) {
+            await updatePresonusSolo(topic, message.toString('utf-8'))
+        }
+        else if (topic.includes("color")) {
+            await updatePresonusColor(topic, message.toString('utf-8'))
+        }
     }
 }
 

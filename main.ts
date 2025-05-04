@@ -69,6 +69,8 @@ function getOptions(): any {
 }
 
 async function connect(): any {
+    //todo add masters, links, pan
+    //todo separate mute, & fader from line
     options = getOptions();
 
     if (options) {
