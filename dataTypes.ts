@@ -1,72 +1,45 @@
-export function getChannelType(channelType: string): string | undefined {
-    switch (channelType.toLowerCase()) {
-        case "line":
-        case "fxreturn":
-        case "talkback":
-        case "return":
-            return "input";
-        case "aux":
-        case "fx":
-        case "main":
-            return "mix";
-        case "sub":
-            return "none"
-        default:
-            console.warn(`Unknown channel type: ${channelType}`);
-            return undefined; // Or you could return a default group
+export function getMixInputs(mix: string): string[] {
+    if (mix == "main" || mix == "aux") {
+        return ["line", "return", "fxreturn", "talkback"]
+    }
+    else if (mix == "fx"){
+        return ["line", "return"]
     }
 }
-export function getSupportedFeatures(mix: string): string[] | undefined {
-    const lowerMix = mix.toLowerCase();
-    if (lowerMix === "main") {
-        return [
-            'line',
-            'return',
-            'fxreturn',
-            'talkback',
-            'solo',
-            'color'
-        ];
-    } else if (lowerMix === "aux") {
-        return [
-            'line',
-            'return',
-            'fxreturn',
-            'talkback',
-        ];
-    } else if (lowerMix === "fx") {
-        return [
-            'line',
-            'return',
-            'talkback',
-        ];
+
+export function getMixFeatures(mix: string) {
+    if (mix == "main") {
+        return{
+            mute: true,
+            fader: true,
+            solo: true,
+            pan: true,
+            link: true,
+            color: true
+        }
     }
-    // If 'mix' doesn't match any of the above, explicitly return undefined
-    return undefined;
+    //todo check if you can pan in aux
+    else if (mix == "aux" || mix == "fx") {
+        return{
+            mute: true,
+            fader: true,
+            pan: true
+        }
+    }
 }
-export function getSpecialInputConfig(inputType: string): Record<string, any> | undefined {
-    switch (inputType.toLowerCase()) {
-        case "line":
-            return {
-                "icon": "mdi:audio-input-line",
-                // Add any other specific properties for 'line' inputs here
-            };
-        case "return":
-            return {
-                "icon": "mdi:import",
-                // Add any other specific properties for 'return' inputs here
-            };
-        case "fxreturn":
-            return {
-                "icon": "mdi:audio-output-variant", // Or a more specific FX icon
-                // Add any other specific properties for 'fxreturn' inputs here
-            };
-        case "talkback":
-            return {
-                "icon": "mdi:microphone",
-                // Add any other specific properties for 'talkback' inputs here
-            };
-        default:
-            return undefined; // Return undefined if the inputType is not one of the special cases
+
+export function getInputFeatures(input: string): string[] {
+    if (input == "line") {
+        return ["mute", "fader", "solo", "pan", "link", "color"]
+    }
+    //todo check if you can change color of returns
+    else if (input == "return") {
+        return ["line", "return", "solo", "color"]
+    }
+    else if (input == "fxreturn") {
+        return ["mute", "fader"]
+    }
+    else if (input == "talkback") {
+        return ["mute", "fader"]
     }
 }

@@ -132,15 +132,18 @@ export async function connectPresonus(options: any): Promise<boolean> {
         console.log(`Channels: `);
         console.dir(channels);
 
-        await updateSensor('system/status', 'Configuring', false);
-        createJson(channels, options);
-        await updateSensor('system/status', 'Syncing', false);
-        await updateMQTTScene(clientPresonus.currentScene)
-        await updateMQTTProject(clientPresonus.currentProject)
-        await sync(channels, options);
-        await updateSensor('system/status', 'Enabling', false);
-        await enableChannels(options);
-        await updateSensor('system/status', 'Ready', false);
+        console.log(options);
+
+        //await updateSensor('system/status', 'Configuring', false);
+        //todo change to loop though every mix, and mix of mix
+        //createJson(channels, options);
+        //await updateSensor('system/status', 'Syncing', false);
+        //await updateMQTTScene(clientPresonus.currentScene)
+        //await updateMQTTProject(clientPresonus.currentProject)
+        //await sync(channels, options);
+        //await updateSensor('system/status', 'Enabling', false);
+        //await enableChannels(options);
+        //await updateSensor('system/status', 'Ready', false);
     });
 
     clientPresonus.on('data', function ({ code, data }) {

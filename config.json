@@ -9,20 +9,29 @@
     "port": 53000,
     "autoreconnect": true,
     "reconnectPeriod": 2000,
-    "line": true,
-    "mute": true,
-    "fader": true,
-    "pan": true,
-    "link": true,
-    "aux": true,
-    "fx": true,
-    "fxreturn": true,
-    "return": true,
-    "talkback": true,
-    "main": true,
-    "solo": true,
-    "color": true,
-    "meter": true
+    "meter": true,
+    "masters": true,
+    "controls": {
+      "mute": true,
+      "fader": true,
+      "pan": true,
+      "link": true,
+      "solo": true,
+      "color": true
+    },
+    "inputs": {
+      "line": true,
+      "return": true,
+      "fxreturn": true,
+      "talkback": true
+    },
+    "mixes": {
+      "master": true,
+      "main": true,
+      "mono": true,
+      "aux": true,
+      "fx": true
+    }
   },
   "mqttOptions": {
     "url": "mqtt://10.10.11.3:1883",

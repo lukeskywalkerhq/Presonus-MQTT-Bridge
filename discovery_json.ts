@@ -1,5 +1,4 @@
-import {getChannelType, getSpecialInputConfig, getSupportedFeatures} from "./dataTypes";
-import {publishDiscoveryData} from "./mqtt";
+import {getInputFeatures, getMixFeatures, getMixInputs} from "./dataTypes";
 
 const manufacturer = "Presonus"
 
@@ -19,420 +18,55 @@ interface DeviceConfig {
         value_template?: string;
         json_attributes_topic?: string;
         schema?: string;
-        brightness_state_topic?: string;
-        brightness_command_topic?: string;
+        rgb_state_topic?: string;
+        rgb_command_topic?: string;
+        rgb_value_template?: string;
+        color_mode_state_topic?: string;
+        color_mode_value_template?: string;
+        color_mode_command_topic?: string;
+        command_color_mode_template?: string;
         supported_color_modes?: string[];
         position_topic?: string;
         set_position_topic?: string;
         optimistic?: boolean;
     }
-    device?: { // Add the device property for grouping
+    device: { // Add the device property for grouping
         name: string;
         identifiers: string[];
         manufacturer?: string;
         model?: string;
     };
-    [key: string]: any; // Allow arbitrary properties
 }
 
-interface DeviceGroupConfig {
+
+interface configuration{
+    mixes: mixGroup[]
+    meters: meterGroup
+    masters: mixGroup
+}
+
+interface meterGroup{
     name: string;
-    devices: {
-    }[];
-}
-
-interface ConfigFile {
-    device_groups: DeviceGroupConfig[];
+    features: inputControl[],
+    enabled: boolean,
 }
 
 interface mixGroup{
     name: string;
     size: number;
-    enabled: boolean;
-    features: string[]
+    supported_inputs: string[];
+    supported_controls: any;
+    enabled?: boolean,
+    features: inputControl[]
 }
 
-interface inputInterfaces{
+interface inputControl {
     name: string;
     size: number;
-    enabled: boolean;
+    type: string;
 }
 
-//todo rewrite this
-async function staticJson(){
-    const systemGroup: { device_groups: DeviceGroupConfig[] } = { // Explicitly type the outer object
-        device_groups: [
-            {
-                name: "System", // Add a name for this group of system sensors
-                devices: [ // Wrap the sensor configs in a 'devices' array
-                    {
-                        type: "sensor",
-                        config: {
-                            name: "Status",
-                            unique_id: "system_status",
-                            state_topic: "presonus/system/status",
-                            availability_topic: "presonus/system/availability",
-                            payload_available: "Online",
-                            payload_not_available: "Offline",
-                            icon: "mdi:information",
-                            device: {
-                                name: "System",
-                                identifiers: ["system"],
-                                manufacturer: manufacturer,
-                                model: "TO DO"
-                            }
-                        },
-                    },
-                    {
-                        type: "sensor",
-                        config: {
-                            name: "Project",
-                            unique_id: "system_project",
-                            state_topic: "presonus/system/project",
-                            availability_topic: "presonus/system/availability",
-                            payload_available: "Online",
-                            payload_not_available: "Offline",
-                            icon: "mdi:folder",
-                            device: {
-                                name: "System",
-                                identifiers: ["system"],
-                                manufacturer: manufacturer,
-                                model: "My Model"
-                            }
-                        },
-                    },
-                    {
-                        type: "sensor",
-                        config: {
-                            name: "Scene",
-                            unique_id: "system_scene",
-                            state_topic: "presonus/system/project",
-                            availability_topic: "presonus/system/availability",
-                            payload_available: "Online",
-                            payload_not_available: "Offline",
-                            icon: "mdi:movie-roll",
-                            device: {
-                                name: "System",
-                                identifiers: ["system"],
-                                manufacturer: manufacturer,
-                                model: "My Model"
-                            }
-
-                        },
-                    },
-                    {
-                        type: "sensor",
-                        config: {
-                            name: "Selected Channel",
-                            unique_id: "selected_channel",
-                            state_topic: "presonus/system/selected_channel",
-                            availability_topic: "presonus/system/availability",
-                            payload_available: "Online",
-                            payload_not_available: "Offline",
-                            icon: "mdi:target",
-                            device: {
-                                name: "System",
-                                identifiers: ["system"],
-                                manufacturer: manufacturer,
-                                model: "My Model"
-                            }
-
-                        },
-                    },
-                    {
-                        type: "sensor",
-                        config: {
-                            name: "Last Action",
-                            unique_id: "last_action",
-                            state_topic: "presonus/system/last_action",
-                            availability_topic: "presonus/system/availability",
-                            payload_available: "Online",
-                            payload_not_available: "Offline",
-                            icon: "mdi:history",
-                            device: {
-                                name: "System",
-                                identifiers: ["system"],
-                                manufacturer: manufacturer,
-                                model: "My Model"
-                            }
-
-                        },
-                    },
-
-                ],
-            },
-        ]}
-    await publishDiscoveryData(systemGroup);
-}
-
-function getColor(mix: string, mixNumber: number, type: string, typeNumber: number): DeviceConfig[] {
-    const allJson: DeviceConfig[] = [];
-
-    const baseId = `${mix.toLowerCase()}_${mixNumber}_${type.toLowerCase()}_${typeNumber}`;
-    const mixNumberString: string = mixNumber.toString().padStart(2, '0');
-    const typeNumberString: string = typeNumber.toString().padStart(2, '0');
-
-    const friendlyName = `${mix.charAt(0).toUpperCase() + mix.slice(1)} ${mixNumberString} ${type.charAt(0).toUpperCase() + type.slice(1)} ${typeNumberString} Color`;
-
-    //todo add colors for return
-    // Add JSON data for RGB light
-    const lightDevice: DeviceConfig = {
-        type: "light",
-        config: {
-            name: `${friendlyName}`,
-            unique_id: `${baseId}_color`,
-            state_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/color/state`,
-            command_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/color/set`,
-            availability_topic: `presonus/${mix}`,
-            payload_available: "Online",
-            payload_not_available: "Offline",
-            rgb_state_topic: `presonus/${mix.toLowerCase()}_${mixNumber}/${type.toLowerCase()}/${typeNumber}/rgb/state`,
-            rgb_command_topic: `presonus/${mix.toLowerCase()}_${mixNumber}/${type.toLowerCase()}/${typeNumber}/rgb/set`,
-            state_value_template: "{{ value_json.state }}",
-            rgb_value_template: "{{ value_json.rgb }}",
-            supported_color_modes: ["rgb"],
-            color_mode_state_topic: `presonus/${mix.toLowerCase()}_${mixNumber}/${type.toLowerCase()}/${typeNumber}/color_mode/state`,
-            color_mode_value_template: "{{ value_json.color_mode }}",
-            color_mode_command_topic: `presonus/${mix.toLowerCase()}_${mixNumber}/${type.toLowerCase()}/${typeNumber}/color_mode/set`,
-            command_color_mode_template: '{ "color_mode": "{{ value }}" }'
-        },
-    };
-    allJson.push(lightDevice);
-
-    return allJson;
-}
-
-function getSolo(mix: string, mixNumber: number, type: string, typeNumber: number): DeviceConfig[] {
-    //todo add solo for return, main, mono
-    const allJson: DeviceConfig[] = [];
-
-    const baseId = `${mix.toLowerCase()}_${mixNumber}_${type.toLowerCase()}_${typeNumber}`;
-    const mixNumberString:string = mixNumber.toString().padStart(2, '0');
-    const typeNumberString:string = typeNumber.toString().padStart(2, '0');
-
-    const friendlyName = `${mix.charAt(0).toUpperCase() + mix.slice(1)} ${mixNumberString} ${type.charAt(0).toUpperCase() + type.slice(1)} ${typeNumberString}`;
-
-    // Add JSON data for mute
-    const muteDevice: DeviceConfig = {
-        type: "switch",
-        config: {
-            name: `${friendlyName}`,
-            unique_id: `${baseId}`,
-            state_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/solo/state`,
-            command_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/solo/set`,
-            availability_topic: `presonus/${mix}`,
-            payload_available: "Online",
-            payload_not_available: "Offline",
-            payload_on: "Soloed",
-            payload_off: "Unsoloed",
-            state_on: "Soloed",
-            state_off: "Unsoloed",
-            device_class: "switch",
-            icon: "mdi:speaker-single"
-        },
-    };
-    allJson.push(muteDevice);
-
-    return allJson
-}
-
-function getMuteAndFader(mix: string, mixNumber: number, type: string, typeNumber:number): DeviceConfig[] {
-    //todo add seperate mute and fader
-    //todo add mute and fader options to config
-    //todo add mute and fader option for mixes, masters, main, mono
-    const allJson: DeviceConfig[] = [];
-    const specialJson = getSpecialInputConfig(type); // Special JSON that differs between types
-
-    const baseId = `${mix.toLowerCase()}_${mixNumber}_${type.toLowerCase()}_${typeNumber}`;
-    const mixNumberString:string = mixNumber.toString().padStart(2, '0');
-    const typeNumberString:string = typeNumber.toString().padStart(2, '0');
-
-    const friendlyName = `${mix.charAt(0).toUpperCase() + mix.slice(1)} ${mixNumberString} ${type.charAt(0).toUpperCase() + type.slice(1)} ${typeNumberString}`;
-
-    // Add JSON data for mute
-    const muteDevice: DeviceConfig = {
-        type: "switch",
-        config: {
-            name: `${friendlyName} Mute`,
-            unique_id: `${baseId}_mute`,
-            state_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/mute/state`,
-            command_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/mute/set`,
-            availability_topic: `presonus/${mix}`,
-            payload_available: "Online",
-            payload_not_available: "Offline",
-            payload_on: "Muted",
-            payload_off: "Unmuted",
-            state_on: "Muted",
-            state_off: "Unmuted",
-            device_class: "switch",
-            icon: specialJson?.icon || "mdi:volume-mute",
-            ...specialJson,
-        },
-    };
-    allJson.push(muteDevice);
-
-    // Add JSON data for fader level
-    const faderDevice: DeviceConfig = {
-        type: "number",
-        config: {
-            name: `${friendlyName} Level`,
-            unique_id: `${baseId}_level`,
-            state_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/fader/state`,
-            command_topic: `presonus/${mix.toLowerCase()}${mixNumber}/${type.toLowerCase()}/${typeNumber}/fader/set`,
-            availability_topic: `presonus/${mix}`,
-            payload_available: "Online",
-            payload_not_available: "Offline",
-            min: 0,
-            max: 100,
-            step: 0.1,
-            unit_of_measurement: "%",
-            icon: specialJson?.icon || "mdi:knob",
-            ...specialJson,
-        },
-    };
-    allJson.push(faderDevice);
-    return allJson;
-}
-
-//todo make this better, and simplify it
-async function jsonloop(mixes: mixGroup[], inputs: inputInterfaces[], options: any) {
-
-    await staticJson()
-
-    for (const mix of mixes) {
-        if (mix.enabled) {
-            for (let i = 0; i < mix.size; i++) {
-                const channelNumber = (i + 1).toString().padStart(2, '0');
-                const mixUniqueID = mix.size <= 2 ? mix.name : `${mix.name}_${channelNumber}`;
-
-                let mixFriendlyName: string;
-                if (mix.size == 1) {
-                    mixFriendlyName = `${mix.name.charAt(0).toUpperCase() + mix.name.slice(1)}`;
-                } else {
-                    mixFriendlyName = `${mix.name.charAt(0).toUpperCase() + mix.name.slice(1)} ${channelNumber}`;
-                }
-
-                const devices: { type: string; config: DeviceConfig }[] = []; // Array to hold all devices for this mix channel
-
-                if (mix.features) {
-                    for (const feature of mix.features) {
-                        const inputInfo = inputs.find(input => input.name === feature);
-
-                        if (inputInfo?.name && inputInfo?.size && mix.enabled && inputInfo.enabled) {
-                            for (let j = 0; j < inputInfo.size; j++) {
-                                let deviceJSON: DeviceConfig[] = null; // Allow null if no match
-
-                                if (feature.toLowerCase() == "line" || feature.toLowerCase() == "fxreturn" ||
-                                    feature.toLowerCase() == "return" || feature.toLowerCase() == "talkback") {
-                                    deviceJSON = getMuteAndFader(mix.name, i + 1, feature, j + 1);
-                                } else if (feature.toLowerCase() == "solo"){
-                                    deviceJSON = getSolo(mix.name, i + 1, feature, j + 1);
-                                } else if (feature.toLowerCase() == "color"){
-                                    deviceJSON = getColor(mix.name, i + 1, feature, j + 1);
-                                }
-
-                                if (deviceJSON) {
-                                    deviceJSON.forEach(config => {
-                                        devices.push({
-                                            type: config.type,
-                                            config: {
-                                                ...config.config,
-                                                device: { // Define the device for Home Assistant grouping
-                                                    name: mixFriendlyName,
-                                                    identifiers: [mixUniqueID.toLowerCase()], // Unique identifier for the mix channel
-                                                    manufacturer: 'Presonus', // Or your preferred manufacturer
-                                                    model: mix.model || 'Unknown', // Assuming 'mix' has a 'model' property
-                                                },
-                                            }
-                                        });
-                                    });
-                                }
-                            }
-                        } else {
-                            console.log(`  No matching and enabled input info found for feature: ${feature} for mix: ${mix.name}`);
-                        }
-                    }
-                }
-
-                // Structure the configFile with all devices under a single device_group (optional, but cleaner)
-                const configFile: ConfigFile = {
-                    device_groups: [
-                        {
-                            name: mixFriendlyName, // Optional group name
-                            devices: devices,
-                        },
-                    ],
-                };
-
-                //console.log(JSON.stringify(configFile, null, 2));
-                await publishDiscoveryData(configFile);
-            }
-        }
-    }
-    return true;
-}
-
-export function createJson(channels: Record<string, number>, options: any): ConfigFile {
-
-    const inputs:inputInterfaces [] = [];
-    const mixes:mixGroup[] = [];
-
-    for (const channel in channels) {
-        if (getChannelType(channel) === "mix"){
-            const features = getSupportedFeatures(channel);
-            let enabled: boolean
-            if (channels[channel] > 0 ){
-                enabled = options?.[channel.toLowerCase()]
-            } else {
-                enabled = false
-            }
-            const mix :mixGroup = {
-                'name': channel.toLowerCase(),
-                'size': channels[channel],
-                'enabled': enabled,
-                'features': features
-            }
-            mixes.push(mix);
-        }
-        else if (getChannelType(channel) === "input") {
-            let enabled :boolean
-            if (channels[channel] > 0) {
-                enabled = options?.[channel.toLowerCase()]
-            } else {
-                enabled = false
-            }
-            const input :inputInterfaces = {
-                'name': channel.toLowerCase(),
-                'size': channels[channel],
-                'enabled': enabled
-            }
-            inputs.push(input)
-
-            if (channel === "LINE"){
-                const soloInput :inputInterfaces = {
-                    'name': "solo",
-                    'size': channels[channel],
-                        'enabled': options?.["solo"]
-            }
-                const colorInput :inputInterfaces = {
-                    'name': "color",
-                    'size': channels[channel],
-                    'enabled': options?.["color"]
-            }
-
-                inputs.push(soloInput)
-                inputs.push(colorInput)
-            }
-        }
-    }
-
-    //todo add catch
-    jsonloop(mixes, inputs, options)
-}
-
-// Example Usage (replace with your actual channels and streams data)
-/*
-const sampleChannels = {
+const testchannels = {
     LINE: 64,
     AUX: 32,
     FX: 8,
@@ -441,25 +75,152 @@ const sampleChannels = {
     TALKBACK: 1,
     MAIN: 1,
     SUB: 0,
-};
-const sampleoptions = {
-    ip: '10.10.11.45',
-    port: 53000,
-    autoreconnect: true,
-    line: true,
-    aux: true,
-    fx: true,
-    fxreturn: true,
-    return: true,
-    talkback: true,
-    main: true,
-    solo: true,
-    color: true,
-    meter: true
+    MASTER: 1,
+    MONO: 1
 }
 
-const myJsonData = createJson(sampleChannels, sampleoptions);
-console.log(JSON.stringify(myJsonData, null, 2));
+const testOptions = {
+    "ip": "10.10.11.45",
+    "port": 53000,
+    "autoreconnect": true,
+    "reconnectPeriod": 2000,
+    "meter": true,
+    "masters": true,
+    "controls": {
+        "mute": true,
+        "fader": true,
+        "pan": true,
+        "link": true,
+        "solo": true,
+        "color": true
+    },
+    "inputs": {
+        "line": true,
+        "return": true,
+        "fxreturn": true,
+        "talkback": true
+    },
+    "mixes": {
+        "master": true,
+        "main": true,
+        "mono": true,
+        "aux": true,
+        "fx": true,
+        "sub": true
+    }
+}
+
+export function getDiscovoryJSON(config: configuration) {
+
+}
+
+function getMeterConfig(channels: any, options: any): inputControl[] {
+    let meterConfig: inputControl[] = []
+
+    if (!options.meter) {
+        return meterConfig
+    }
+
+    for (const input in options.inputs){
+        if (options.inputs[input] && channels[input.toUpperCase()] > 0){
+            const newInput: inputControl = {
+                name: input,
+                size: channels[input.toUpperCase()],
+                type: "input"
+            }
+            meterConfig.push(newInput)
+        }
+    }
+
+    for (const mix in options.mixes){
+        if (options.mixes[mix] && channels[mix.toUpperCase()] > 0){
+            const newInput: inputControl = {
+                name: mix,
+                size: channels[mix.toUpperCase()],
+                type: "mix"
+            }
+            meterConfig.push(newInput)
+        }
+    }
+
+    return meterConfig
+}
+
+function getMasterConfig(channels: any, options: any): inputControl[] {
+    let masterConfig: inputControl[] = []
+    if (!options.masters) {
+        return masterConfig
+    }
+
+    for (const mix in options.mixes){
+        if (options.mixes[mix] && channels[mix.toUpperCase()] > 0){
+            const newInput: inputControl = {
+                name: mix,
+                size: channels[mix.toUpperCase()],
+                type: "master"
+            }
+            masterConfig.push(newInput)
+        }
+    }
+    return masterConfig
+}
+
+export function getConfiguration(channels: any, options: any): configuration {
+    let config: configuration = {
+        mixes: [],
+        meters: { name: 'meters', enabled: options.meter, controls: getMeterConfig(channels, options)}, // Initialize meters
+        masters: { name: 'masters', size: 1, enabled: options.masters, features: getMasterConfig(channels, options) } // Initialize masters
+    };
 
 
- */
+
+    // Process mixes based on options.mixes
+    if (options.mixes) {
+        for (const mixType in options.mixes) {
+            if (options.mixes[mixType] && channels[mixType.toUpperCase()]) {
+                config.mixes.push({
+                    name: mixType,
+                    size: channels[mixType.toUpperCase()],
+                    enabled: true,
+                    supported_inputs: getMixInputs(mixType),
+                    supported_controls: getMixFeatures(mixType),
+                    features: [] // You'll likely populate this later
+                });
+            }
+        }
+    }
+
+    for (const mixType in config.mixes) {
+        const mix = config.mixes[mixType];
+
+        for (const input in mix.supported_inputs) {
+            const inputName = mix.supported_inputs[input];
+
+            if (options.inputs[inputName]) {
+                const inputFeatures = getInputFeatures(inputName);
+
+                for (const feature in  inputFeatures) {
+                    const featureName = inputFeatures[feature];
+
+                    if (mix.supported_controls[featureName]){
+                        const mixFeature: inputControl = {
+                            name: featureName,
+                            size: channels[inputName.toUpperCase()],
+                            type: inputName,
+                        }
+
+                        mix.features.push(mixFeature)
+                    }
+                }
+            }
+        }
+    }
+
+    return config;
+}
+
+const data = getConfiguration(testchannels, testOptions);
+console.log(JSON.stringify(data, null, 2));
+
+//const json = getDiscovoryJSON(data);
+//console.log(JSON.stringify(json, null, 2));
