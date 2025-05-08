@@ -1,43 +1,7 @@
 import {getInputFeatures, getMixFeatures, getMixInputs} from "./dataTypes";
+import {mixJSONGroup, SwitchConfig} from "./interfaces";
 
 const manufacturer = "Presonus"
-
-interface DeviceConfig {
-    type: string;
-    config: {
-        name: string;
-        unique_id: string;
-        state_topic?: string;
-        command_topic?: string;
-        availability_topic?: string;
-        payload_available?: string;
-        payload_not_available?: string;
-        icon?: string;
-        device_class?: string;
-        unit_of_measurement?: string;
-        value_template?: string;
-        json_attributes_topic?: string;
-        schema?: string;
-        rgb_state_topic?: string;
-        rgb_command_topic?: string;
-        rgb_value_template?: string;
-        color_mode_state_topic?: string;
-        color_mode_value_template?: string;
-        color_mode_command_topic?: string;
-        command_color_mode_template?: string;
-        supported_color_modes?: string[];
-        position_topic?: string;
-        set_position_topic?: string;
-        optimistic?: boolean;
-    }
-    device: { // Add the device property for grouping
-        name: string;
-        identifiers: string[];
-        manufacturer?: string;
-        model?: string;
-    };
-}
-
 
 interface configuration{
     mixes: mixGroup[]
@@ -110,8 +74,116 @@ const testOptions = {
     }
 }
 
-export function getDiscovoryJSON(config: configuration) {
+function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+    const baseURL = `${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
 
+    return {
+        unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+        component: 'switch',
+        device_class: "switch",
+        command_topic: baseURL + "/command",
+        state_topic: baseURL + "/set",
+        availability_topic: `presonus/${mixName}`,
+        payload_available: "Online",
+        payload_not_available: "Offline",
+        payload_on: "linked",
+        payload_off: "unlinked",
+        state_on: "Linked",
+        state_off: "Unlinked",
+        icon: "mdi:link-variant",
+        device: {
+            name: `${mixName} ${mixIndex}`,
+            identifiers: [`${mixName}_${mixIndex}`],
+            manufacturer: manufacturer,
+            model: "unknown"
+        }
+    };
+}
+
+function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+    const baseURL = `${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+
+    return {
+        unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+        component: 'switch',
+        device_class: "switch",
+        command_topic: baseURL + "/command",
+        state_topic: baseURL + "/set",
+        availability_topic: `presonus/${mixName}`,
+        payload_available: "Online",
+        payload_not_available: "Offline",
+        payload_on: "soloed",
+        payload_off: "unsoloed",
+        state_on: "Soloed",
+        state_off: "Unsoloed",
+        icon: "mdi:speaker",
+        device: {
+            name: `${mixName} ${mixIndex}`,
+            identifiers: [`${mixName}_${mixIndex}`],
+            manufacturer: manufacturer,
+            model: "unknown"
+        }
+    };
+}
+
+function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+    const baseURL = `${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+
+    return {
+        unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+        component: 'switch',
+        device_class: "switch",
+        command_topic: baseURL + "/command",
+        state_topic: baseURL + "/set",
+        availability_topic: `presonus/${mixName}`,
+        payload_available: "Online",
+        payload_not_available: "Offline",
+        payload_on: "muted",
+        payload_off: "unmuted",
+        state_on: "Muted",
+        state_off: "Unmuted",
+        icon: "mdi:volume-mute",
+        device: {
+            name: `${mixName} ${mixIndex}`,
+            identifiers: [`${mixName}_${mixIndex}`],
+            manufacturer: manufacturer,
+            model: "unknown"
+        }
+    };
+}
+
+export function getDiscovoryJSON(config: mixGroup, index: number): any {
+
+    const mixName: string = config.name;
+    const mixIndex: number = index;
+
+    let json: mixJSONGroup = {
+        type: mixName + "_" + mixIndex,
+        config: []
+    }
+
+    for (const feature of config.features) {
+        if(feature.type == "mute"){
+            json.config.push(getMuteJSON(mixName, mixIndex, feature, 1))
+        }
+        else if (feature.type == "fader"){
+
+        }
+        else if (feature.type == "solo"){
+            json.config.push(getSoloJSON(mixName, mixIndex, feature, 1))
+        }
+        else if (feature.type == "pan"){
+
+        }
+        else if (feature.type == "link"){
+            json.config.push(getLinkJSON(mixName, mixIndex, feature, 1))
+        }
+        else if (feature.type == "color"){
+
+        }
+    }
+
+    return json;
 }
 
 function getMeterConfig(channels: any, options: any): inputControl[] {
@@ -124,9 +196,9 @@ function getMeterConfig(channels: any, options: any): inputControl[] {
     for (const input in options.inputs){
         if (options.inputs[input] && channels[input.toUpperCase()] > 0){
             const newInput: inputControl = {
-                name: input,
+                name: "input",
                 size: channels[input.toUpperCase()],
-                type: "input"
+                type: input
             }
             meterConfig.push(newInput)
         }
@@ -135,9 +207,9 @@ function getMeterConfig(channels: any, options: any): inputControl[] {
     for (const mix in options.mixes){
         if (options.mixes[mix] && channels[mix.toUpperCase()] > 0){
             const newInput: inputControl = {
-                name: mix,
+                name: "mix",
                 size: channels[mix.toUpperCase()],
-                type: "mix"
+                type: mix
             }
             meterConfig.push(newInput)
         }
@@ -155,9 +227,9 @@ function getMasterConfig(channels: any, options: any): inputControl[] {
     for (const mix in options.mixes){
         if (options.mixes[mix] && channels[mix.toUpperCase()] > 0){
             const newInput: inputControl = {
-                name: mix,
+                name: "master",
                 size: channels[mix.toUpperCase()],
-                type: "master"
+                type: mix
             }
             masterConfig.push(newInput)
         }
@@ -181,7 +253,6 @@ export function getConfiguration(channels: any, options: any): configuration {
                 config.mixes.push({
                     name: mixType,
                     size: channels[mixType.toUpperCase()],
-                    enabled: true,
                     supported_inputs: getMixInputs(mixType),
                     supported_controls: getMixFeatures(mixType),
                     features: [] // You'll likely populate this later
@@ -204,9 +275,9 @@ export function getConfiguration(channels: any, options: any): configuration {
 
                     if (mix.supported_controls[featureName]){
                         const mixFeature: inputControl = {
-                            name: featureName,
+                            name: inputName,
                             size: channels[inputName.toUpperCase()],
-                            type: inputName,
+                            type: featureName,
                         }
 
                         mix.features.push(mixFeature)
@@ -220,7 +291,12 @@ export function getConfiguration(channels: any, options: any): configuration {
 }
 
 const data = getConfiguration(testchannels, testOptions);
-console.log(JSON.stringify(data, null, 2));
+//console.log(JSON.stringify(data, null, 2));
 
-//const json = getDiscovoryJSON(data);
-//console.log(JSON.stringify(json, null, 2));
+for (const mix in data.mixes){
+    const mixConfig = data.mixes[mix];
+    for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
+        const json = getDiscovoryJSON(mixConfig, mixIndex);
+        console.log(JSON.stringify(json, null, 2));
+    }
+}
