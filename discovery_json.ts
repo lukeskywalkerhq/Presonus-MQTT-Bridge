@@ -30,52 +30,82 @@ interface inputControl {
     type: string;
 }
 
-const testchannels = {
-    LINE: 64,
-    AUX: 32,
-    FX: 8,
-    FXRETURN: 8,
-    RETURN: 3,
-    TALKBACK: 1,
-    MAIN: 1,
-    SUB: 0,
-    MASTER: 1,
-    MONO: 1
+
+function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+
+    return {
+            unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+            component: 'number',
+            device_class: "number",
+            command_topic: baseURL + "/command",
+            state_topic: baseURL + "/set",
+            availability_topic: `presonus/${mixName}`,
+            payload_available: "Online",
+            payload_not_available: "Offline",
+            min: -50,
+            max: 50,
+            step: 1,
+            unit_of_measure: "°",
+            icon: "mdi:knob",
+            device: {
+                name: `${mixName} ${mixIndex}`,
+                identifiers: [`${mixName}_${mixIndex}`],
+                manufacturer: manufacturer,
+                model: "unknown"
+            }
+        }
 }
 
-const testOptions = {
-    "ip": "10.10.11.45",
-    "port": 53000,
-    "autoreconnect": true,
-    "reconnectPeriod": 2000,
-    "meter": true,
-    "masters": true,
-    "controls": {
-        "mute": true,
-        "fader": true,
-        "pan": true,
-        "link": true,
-        "solo": true,
-        "color": true
-    },
-    "inputs": {
-        "line": true,
-        "return": true,
-        "fxreturn": true,
-        "talkback": true
-    },
-    "mixes": {
-        "master": true,
-        "main": true,
-        "mono": true,
-        "aux": true,
-        "fx": true,
-        "sub": true
-    }
+function getLightJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+
+    return {
+        type: "light",
+        config: {
+            name: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}\``,
+            unique_id: `${baseURL}_color`,
+            command_topic: baseURL + "/command",
+            state_topic: baseURL + "/set",
+            availability_topic: `presonus/${mixName}`,
+            payload_available: "Online",
+            payload_not_available: "Offline",
+            rgb_state_topic: `${baseURL}/rgb/state`,
+            rgb_command_topic: `${baseURL}/rgb/set`,
+            rgb_value_template: "{{ value_json.rgb }}",
+            supported_color_modes: ["rgb"]
+        },
+    };
+}
+
+function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+
+    return {
+        unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+        component: 'number',
+        device_class: "number",
+        command_topic: baseURL + "/command",
+        state_topic: baseURL + "/set",
+        availability_topic: `presonus/${mixName}`,
+        payload_available: "Online",
+        payload_not_available: "Offline",
+        min: 0,
+        max: 100,
+        step: 0.1,
+        unit_of_measure: "%",
+        icon: "mdi:knob",
+        device: {
+            name: `${mixName} ${mixIndex}`,
+            identifiers: [`${mixName}_${mixIndex}`],
+            manufacturer: manufacturer,
+            model: "unknown"
+        }
+    };
 }
 
 function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
@@ -101,7 +131,7 @@ function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityInde
 }
 
 function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
@@ -127,7 +157,7 @@ function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityInde
 }
 
 function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
@@ -167,19 +197,20 @@ export function getDiscovoryJSON(config: mixGroup, index: number): any {
             json.config.push(getMuteJSON(mixName, mixIndex, feature, 1))
         }
         else if (feature.type == "fader"){
-
+            json.config.push(getFaderJSON(mixName, mixIndex, feature, 1))
         }
         else if (feature.type == "solo"){
             json.config.push(getSoloJSON(mixName, mixIndex, feature, 1))
         }
         else if (feature.type == "pan"){
-
+            //todo find limits
+            json.config.push(getPanJSON(mixName, mixIndex, feature, 1))
         }
         else if (feature.type == "link"){
             json.config.push(getLinkJSON(mixName, mixIndex, feature, 1))
         }
         else if (feature.type == "color"){
-
+            json.config.push(getLightJSON(mixName, mixIndex, feature, 1))
         }
     }
 
@@ -288,15 +319,4 @@ export function getConfiguration(channels: any, options: any): configuration {
     }
 
     return config;
-}
-
-const data = getConfiguration(testchannels, testOptions);
-//console.log(JSON.stringify(data, null, 2));
-
-for (const mix in data.mixes){
-    const mixConfig = data.mixes[mix];
-    for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
-        const json = getDiscovoryJSON(mixConfig, mixIndex);
-        console.log(JSON.stringify(json, null, 2));
-    }
 }
