@@ -1,4 +1,4 @@
-export interface mixJSONGroup{
+export interface publishLayout{
     type: string;
     config: HomeAssistantEntityConfig[]
 }

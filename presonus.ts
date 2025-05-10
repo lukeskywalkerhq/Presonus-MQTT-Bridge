@@ -9,9 +9,9 @@ import {
     updateMQTTScene, updateMQTTScreen,
     updateMQTTSelect,
     updateSensor,
-    updateMQTTSolo
+    updateMQTTSolo, publishDiscoveryData
 } from "./mqtt";
-import { createJson } from "./discovery_json";
+import {createJson, getConfiguration, getDiscovoryJSON} from "./discovery_json";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 
 let clientPresonus: Client | null = null; // Initialize as null
@@ -126,17 +126,24 @@ export async function connectPresonus(options: any): Promise<boolean> {
 
     clientPresonus.on('connected', async function () {
         await updateSensor('system/status', 'Connected', false);
-        console.log('evt: Presonus Connected');
+        const channels = clientPresonus.channelCounts;
 
-        let channels = clientPresonus.channelCounts;
-        console.log(`Channels: `);
-        console.dir(channels);
+        await updateSensor('system/status', 'Configuring', false);
+        const configData = getConfiguration(channels, options);
 
-        console.log(options);
 
-        //await updateSensor('system/status', 'Configuring', false);
-        //todo change to loop though every mix, and mix of mix
-        //createJson(channels, options);
+        for (const mix in configData.mixes){
+            const mixConfig = configData.mixes[mix];
+            for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
+                if (mixConfig.features.length > 0){
+                    const publishgroup = getDiscovoryJSON(mixConfig, mixIndex);
+                    console.log(JSON.stringify(publishgroup, null, 2));
+                    console.log(mixConfig)
+                    await publishDiscoveryData(publishgroup)
+                }
+            }
+        }
+
         //await updateSensor('system/status', 'Syncing', false);
         //await updateMQTTScene(clientPresonus.currentScene)
         //await updateMQTTProject(clientPresonus.currentProject)

@@ -1,5 +1,5 @@
 import {getInputFeatures, getMixFeatures, getMixInputs} from "./dataTypes";
-import {mixJSONGroup, SwitchConfig} from "./interfaces";
+import {mixJSONGroup, publishLayout, SwitchConfig} from "./interfaces";
 
 const manufacturer = "Presonus"
 
@@ -187,34 +187,35 @@ export function getDiscovoryJSON(config: mixGroup, index: number): any {
     const mixName: string = config.name;
     const mixIndex: number = index;
 
-    let json: mixJSONGroup = {
-        type: mixName + "_" + mixIndex,
-        config: []
-    }
+    let publishGroup: any[] = []
 
     for (const feature of config.features) {
         if(feature.type == "mute"){
-            json.config.push(getMuteJSON(mixName, mixIndex, feature, 1))
+            const data = getMuteJSON(mixName, mixIndex, feature, 1))
+            const publish: publishLayout {
+                type: "mute",
+                config: data
+            }
         }
         else if (feature.type == "fader"){
-            json.config.push(getFaderJSON(mixName, mixIndex, feature, 1))
+            publishGroup.push(getFaderJSON(mixName, mixIndex, feature, 1))
         }
         else if (feature.type == "solo"){
-            json.config.push(getSoloJSON(mixName, mixIndex, feature, 1))
+            publishGroup.push(getSoloJSON(mixName, mixIndex, feature, 1))
         }
         else if (feature.type == "pan"){
             //todo find limits
-            json.config.push(getPanJSON(mixName, mixIndex, feature, 1))
+            publishGroup.push(getPanJSON(mixName, mixIndex, feature, 1))
         }
         else if (feature.type == "link"){
-            json.config.push(getLinkJSON(mixName, mixIndex, feature, 1))
+            publishGroup.push(getLinkJSON(mixName, mixIndex, feature, 1))
         }
         else if (feature.type == "color"){
-            json.config.push(getLightJSON(mixName, mixIndex, feature, 1))
+            publishGroup.push(getLightJSON(mixName, mixIndex, feature, 1))
         }
     }
 
-    return json;
+    return publishGroup;
 }
 
 function getMeterConfig(channels: any, options: any): inputControl[] {
