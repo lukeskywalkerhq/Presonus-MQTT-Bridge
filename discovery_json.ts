@@ -190,41 +190,41 @@ export function getDiscoveryJSON(config: mixGroup, index: number): any {
     let publishGroup: any[] = []
 
     for (const feature of config.features) {
-        for (let input = 0; input < feature.size; input++) {
+        for (let inputIndex: number = 0; inputIndex < feature.size; inputIndex++) {
             let data: any = {};
             let  type: string
-            let topicName: string
+            let commandType: string
 
             if(feature.type == "mute"){
-                data = getMuteJSON(mixName, mixIndex, feature, input + 1)
+                data = getMuteJSON(mixName, mixIndex, feature, inputIndex + 1)
                 type = "switch"
-                topicName = `mute_${feature}_${input + 1}`
+                commandType = "mute"
             }
             else if (feature.type == "fader"){
-                data = getFaderJSON(mixName, mixIndex, feature, input + 1)
+                data = getFaderJSON(mixName, mixIndex, feature, inputIndex + 1)
                 type = "number"
-                topicName = `fader_${feature}_${input + 1}`
+                commandType = "fader"
             }
             else if (feature.type == "solo"){
-                data = getSoloJSON(mixName, mixIndex, feature, input + 1)
+                data = getSoloJSON(mixName, mixIndex, feature, inputIndex + 1)
                 type = "switch"
-                topicName = `switch_${feature}_${input + 1}`
+                commandType = "solo"
             }
             else if (feature.type == "pan"){
                 //todo find limits
-                data = getPanJSON(mixName, mixIndex, feature, input + 1)
+                data = getPanJSON(mixName, mixIndex, feature, inputIndex + 1)
                 type = "number"
-                topicName = `pan_${feature}_${input + 1}`
+                commandType = "pan"
             }
             else if (feature.type == "link"){
-                data = getLinkJSON(mixName, mixIndex, feature, input + 1)
+                data = getLinkJSON(mixName, mixIndex, feature, inputIndex + 1)
                 type = "switch"
-                topicName = `link_${feature}_${input + 1}`
+                commandType = "link"
             }
             else if (feature.type == "color"){
-                data = getLightJSON(mixName, mixIndex, feature, input + 1)
+                data = getLightJSON(mixName, mixIndex, feature, inputIndex + 1)
                 type = "light"
-                topicName = `color_${feature}_${input + 1}`
+                commandType = "color"
             }
             else {
                 console.error("feature Type: " + feature.type + "does not exist")
@@ -233,7 +233,9 @@ export function getDiscoveryJSON(config: mixGroup, index: number): any {
             const publish: publishLayout = {
                 type: type,
                 mixName: `${mixName}_${mixIndex}`,
-                topicName: topicName,
+                input: feature.name,
+                commandType: commandType = "mute",
+                index: inputIndex,
                 config: data
             }
             publishGroup.push(publish)

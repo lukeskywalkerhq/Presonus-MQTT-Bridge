@@ -1,7 +1,10 @@
 export interface publishLayout{
     type: string;
     mixName: string;
-    topicName: string;
+    input: string;
+    commandType: string;
+    output: string;
+    index: number;
     config: HomeAssistantEntityConfig
 }
 

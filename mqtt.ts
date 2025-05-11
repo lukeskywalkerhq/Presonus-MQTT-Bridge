@@ -136,12 +136,14 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
 
     for (const device of discoveryPayload) {
 
-        const type = device.type;
-        const config = device.config;
-        const objectId = config.topicName;
-        const mixName = device.mixName;
+        const type: string = device.type;
+        const config: string = device.config;
+        const input: string = device.input;
+        const command: string = device.commandType;
+        const mixName: string = device.mixName;
+        const index: number = device.index;
 
-        let discoveryTopic = `${type}/${mixName}/${objectId}/config`;
+        let discoveryTopic = `${type}/${mixName}/${input}/${command}/${index}/config`;
         if (prefix) {
             discoveryTopic = `${prefix}/${discoveryTopic}`;
         }
