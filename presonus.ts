@@ -11,7 +11,7 @@ import {
     updateSensor,
     updateMQTTSolo, publishDiscoveryData
 } from "./mqtt";
-import {createJson, getConfiguration, getDiscovoryJSON} from "./discovery_json";
+import {createJson, getConfiguration, getDiscoveryJSON} from "./discovery_json";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 
 let clientPresonus: Client | null = null; // Initialize as null
@@ -136,7 +136,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
             const mixConfig = configData.mixes[mix];
             for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
                 if (mixConfig.features.length > 0){
-                    const publishgroup = getDiscovoryJSON(mixConfig, mixIndex);
+                    const publishgroup = getDiscoveryJSON(mixConfig, mixIndex);
                     console.log(JSON.stringify(publishgroup, null, 2));
                     console.log(mixConfig)
                     await publishDiscoveryData(publishgroup)

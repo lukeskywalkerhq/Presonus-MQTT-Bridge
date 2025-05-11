@@ -1,4 +1,4 @@
-import {getConfiguration, getDiscovoryJSON} from "./discovery_json";
+import {getConfiguration, getDiscoveryJSON} from "./discovery_json";
 
 const testChannels = {
     LINE: 64,
@@ -50,7 +50,7 @@ const data = getConfiguration(testChannels, testOptions);
 for (const mix in data.mixes){
     const mixConfig = data.mixes[mix];
     for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
-        const json = getDiscovoryJSON(mixConfig, mixIndex);
+        const json = getDiscoveryJSON(mixConfig, mixIndex);
         console.log(JSON.stringify(json, null, 2));
     }
 }

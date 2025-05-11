@@ -1,6 +1,7 @@
 export interface publishLayout{
     type: string;
-    config: HomeAssistantEntityConfig[]
+    mixName: string;
+    config: HomeAssistantEntityConfig
 }
 
 export interface HomeAssistantEntityConfig {

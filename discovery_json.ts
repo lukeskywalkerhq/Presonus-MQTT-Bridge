@@ -1,5 +1,5 @@
 import {getInputFeatures, getMixFeatures, getMixInputs} from "./dataTypes";
-import {mixJSONGroup, publishLayout, SwitchConfig} from "./interfaces";
+import {publishLayout, SwitchConfig} from "./interfaces";
 
 const manufacturer = "Presonus"
 
@@ -182,7 +182,7 @@ function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityInde
     };
 }
 
-export function getDiscovoryJSON(config: mixGroup, index: number): any {
+export function getDiscoveryJSON(config: mixGroup, index: number): any {
 
     const mixName: string = config.name;
     const mixIndex: number = index;
@@ -190,29 +190,42 @@ export function getDiscovoryJSON(config: mixGroup, index: number): any {
     let publishGroup: any[] = []
 
     for (const feature of config.features) {
+        let data: any = {};
+        let  type: string
+
         if(feature.type == "mute"){
-            const data = getMuteJSON(mixName, mixIndex, feature, 1))
-            const publish: publishLayout {
-                type: "mute",
-                config: data
-            }
+            data = getMuteJSON(mixName, mixIndex, feature, 1)
+            type = "switch"
         }
         else if (feature.type == "fader"){
-            publishGroup.push(getFaderJSON(mixName, mixIndex, feature, 1))
+            data = getFaderJSON(mixName, mixIndex, feature, 1)
+            type = "number"
         }
         else if (feature.type == "solo"){
-            publishGroup.push(getSoloJSON(mixName, mixIndex, feature, 1))
+            data = getSoloJSON(mixName, mixIndex, feature, 1)
+            type = "switch"
         }
         else if (feature.type == "pan"){
             //todo find limits
-            publishGroup.push(getPanJSON(mixName, mixIndex, feature, 1))
+            data = getPanJSON(mixName, mixIndex, feature, 1)
+            type = "number"
         }
         else if (feature.type == "link"){
-            publishGroup.push(getLinkJSON(mixName, mixIndex, feature, 1))
+            data = getLinkJSON(mixName, mixIndex, feature, 1)
+            type = "swtich"
         }
         else if (feature.type == "color"){
-            publishGroup.push(getLightJSON(mixName, mixIndex, feature, 1))
+            data = getLightJSON(mixName, mixIndex, feature, 1)
+            type = "light"
         }
+
+        const publish: publishLayout = {
+            type: type,
+            mixName: `${mixName}_${mixIndex}`,
+            config: data
+        }
+        publishGroup.push(publish)
+
     }
 
     return publishGroup;
