@@ -190,42 +190,54 @@ export function getDiscoveryJSON(config: mixGroup, index: number): any {
     let publishGroup: any[] = []
 
     for (const feature of config.features) {
-        let data: any = {};
-        let  type: string
+        for (let input = 0; input < feature.size; input++) {
+            let data: any = {};
+            let  type: string
+            let topicName: string
 
-        if(feature.type == "mute"){
-            data = getMuteJSON(mixName, mixIndex, feature, 1)
-            type = "switch"
-        }
-        else if (feature.type == "fader"){
-            data = getFaderJSON(mixName, mixIndex, feature, 1)
-            type = "number"
-        }
-        else if (feature.type == "solo"){
-            data = getSoloJSON(mixName, mixIndex, feature, 1)
-            type = "switch"
-        }
-        else if (feature.type == "pan"){
-            //todo find limits
-            data = getPanJSON(mixName, mixIndex, feature, 1)
-            type = "number"
-        }
-        else if (feature.type == "link"){
-            data = getLinkJSON(mixName, mixIndex, feature, 1)
-            type = "swtich"
-        }
-        else if (feature.type == "color"){
-            data = getLightJSON(mixName, mixIndex, feature, 1)
-            type = "light"
-        }
+            if(feature.type == "mute"){
+                data = getMuteJSON(mixName, mixIndex, feature, input + 1)
+                type = "switch"
+                topicName = `mute_${feature}_${input + 1}`
+            }
+            else if (feature.type == "fader"){
+                data = getFaderJSON(mixName, mixIndex, feature, input + 1)
+                type = "number"
+                topicName = `fader_${feature}_${input + 1}`
+            }
+            else if (feature.type == "solo"){
+                data = getSoloJSON(mixName, mixIndex, feature, input + 1)
+                type = "switch"
+                topicName = `switch_${feature}_${input + 1}`
+            }
+            else if (feature.type == "pan"){
+                //todo find limits
+                data = getPanJSON(mixName, mixIndex, feature, input + 1)
+                type = "number"
+                topicName = `pan_${feature}_${input + 1}`
+            }
+            else if (feature.type == "link"){
+                data = getLinkJSON(mixName, mixIndex, feature, input + 1)
+                type = "switch"
+                topicName = `link_${feature}_${input + 1}`
+            }
+            else if (feature.type == "color"){
+                data = getLightJSON(mixName, mixIndex, feature, input + 1)
+                type = "light"
+                topicName = `color_${feature}_${input + 1}`
+            }
+            else {
+                console.error("feature Type: " + feature.type + "does not exist")
+            }
 
-        const publish: publishLayout = {
-            type: type,
-            mixName: `${mixName}_${mixIndex}`,
-            config: data
+            const publish: publishLayout = {
+                type: type,
+                mixName: `${mixName}_${mixIndex}`,
+                topicName: topicName,
+                config: data
+            }
+            publishGroup.push(publish)
         }
-        publishGroup.push(publish)
-
     }
 
     return publishGroup;

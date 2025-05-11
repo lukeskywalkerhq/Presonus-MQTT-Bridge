@@ -126,7 +126,7 @@ export function getMQTTStatus(): string {
     return mqttStatus;
 }
 
-export async function publishDiscoveryData(discoveryPayload: any) {
+export async function publishDiscoveryData(discoveryPayload: any[]) {
     if (!mqttClient || !mqttClient.connected) {
         console.error('MQTT client is not connected. Cannot publish discovery data.');
         return;
@@ -134,27 +134,21 @@ export async function publishDiscoveryData(discoveryPayload: any) {
 
     const batchPayload: { topic: string; payload: string }[] = [];
 
-    for (const deviceGroup of discoveryPayload.device_groups) {
-        const groupName = deviceGroup.name.toLowerCase().replace(/ /g, '_');
+    for (const device of discoveryPayload) {
 
-        for (const device of deviceGroup.devices) {
-            //const jsonString = JSON.stringify(device, null, 2);
-            console.log("Published Config for " + device.config.name);
+        const type = device.type;
+        const config = device.config;
+        const objectId = config.topicName;
+        const mixName = device.mixName;
 
-            const component = device.type;
-            const config = device.config;
-            const objectId = config.unique_id;
-            const nodeId = groupName;
-
-            let discoveryTopic = `${component}/${nodeId}/${objectId}/config`;
-            if (prefix) {
-                discoveryTopic = `${prefix}/${discoveryTopic}`;
-            }
-
-            const configPayload = JSON.stringify(config);
-
-            batchPayload.push({ topic: discoveryTopic, payload: configPayload });
+        let discoveryTopic = `${type}/${mixName}/${objectId}/config`;
+        if (prefix) {
+            discoveryTopic = `${prefix}/${discoveryTopic}`;
         }
+
+        const configPayload = JSON.stringify(config);
+
+        batchPayload.push({ topic: discoveryTopic, payload: configPayload });
     }
 
     // Publish the entire batch with a single delay
@@ -163,7 +157,7 @@ export async function publishDiscoveryData(discoveryPayload: any) {
 
     for (const item of batchPayload) {
         try {
-            await publishMQTT(item.topic, item.payload, {retain: true});
+            await publishMQTT(item.topic, item.payload, { retain: true });
             console.log(`Published discovery config to ${item.topic}`);
         } catch (error) {
             console.error(`Error publishing to ${item.topic}:`, error);

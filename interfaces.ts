@@ -1,6 +1,7 @@
 export interface publishLayout{
     type: string;
     mixName: string;
+    topicName: string;
     config: HomeAssistantEntityConfig
 }
 

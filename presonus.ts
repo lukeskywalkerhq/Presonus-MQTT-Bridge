@@ -136,9 +136,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
             const mixConfig = configData.mixes[mix];
             for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
                 if (mixConfig.features.length > 0){
-                    const publishgroup = getDiscoveryJSON(mixConfig, mixIndex);
-                    console.log(JSON.stringify(publishgroup, null, 2));
-                    console.log(mixConfig)
+                    const publishgroup: any[] = getDiscoveryJSON(mixConfig, mixIndex + 1);
                     await publishDiscoveryData(publishgroup)
                 }
             }
