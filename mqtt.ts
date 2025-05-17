@@ -112,10 +112,6 @@ export async function updateMQTTProject(project: string){
     await updateSensor("system/project", project);
 }
 
-export async function sync(channels, options): Promise<boolean> {
-    //todo get state of board and push to mqtt
-}
-
 export async function enableChannels(options: any) {
     await updateSensor('fx', options.fx ? 'Online' : 'Offline', true);
     await updateSensor('aux', options.aux ? 'Online' : 'Offline', true);

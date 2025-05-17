@@ -68,7 +68,7 @@ function getOptions(): any {
     return readConfigFile("config.json");
 }
 
-async function connect(): any {
+async function connect(): Promise<void> {
     //todo add masters, links, pan
     //todo separate mute, & fader from line
     options = getOptions();
@@ -97,7 +97,7 @@ function main() {
     const downloadDirectory = path.join(__dirname, 'my-repo'); // Adjust the destination path as needed
 
     try {
-        downloadLatestRepo(repositoryUrl, downloadDirectory).then(r => connect());
+        downloadLatestRepo(repositoryUrl, downloadDirectory).then(connect());
         console.log('Repository is now up to date in:', downloadDirectory);
     } catch (error) {
         console.error('Failed to download/update the repository.');

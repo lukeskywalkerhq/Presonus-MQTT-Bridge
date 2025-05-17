@@ -3,7 +3,6 @@ export interface publishLayout{
     mixName: string;
     input: string;
     commandType: string;
-    output: string;
     index: number;
     config: HomeAssistantEntityConfig
 }

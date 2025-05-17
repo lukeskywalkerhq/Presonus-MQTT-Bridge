@@ -1,7 +1,6 @@
 import { Client } from './my-repo/src/api';
 import {
     enableChannels,
-    sync,
     updateMQTTAuxFader,
     updateMQTTAuxMute, updateMQTTLastAction, updateMQTTMainFader,
     updateMQTTMainMute, updateMQTTPeak,
@@ -11,7 +10,7 @@ import {
     updateSensor,
     updateMQTTSolo, publishDiscoveryData
 } from "./mqtt";
-import {createJson, getConfiguration, getDiscoveryJSON} from "./discovery_json";
+import {getConfiguration, getDiscoveryJSON} from "./discovery_json";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 
 let clientPresonus: Client | null = null; // Initialize as null
@@ -70,7 +69,7 @@ export async function updatePresonusMute(topic: string, state: string){
 function getChannelSelector(topic: string){
     const topics: string[] = topic.split("/")
     const mix: string = topics[1].replace(/[0-9]/g, '').toUpperCase();
-    const mixCh: number = topics[1].replace(/\D/g,'');
+    const mixCh: number = Number(topics[1].replace(/\D/g,''));
     let type: string = topics[2].toUpperCase()
     const ch: number = Number(topics[3])
 
