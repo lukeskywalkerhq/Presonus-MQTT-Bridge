@@ -1,7 +1,21 @@
-import {getLink, getMute} from "./presonus";
+import {getLink, getMute, getSolo} from "./presonus";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 import {updateSensor} from "./mqtt";
 
+
+async function syncSolo(topic: string, channelselector: channelSelector): Promise<void> {
+    const state = await getSolo(channelselector)
+
+    let publishState: string
+    if (state)
+    {
+        publishState = "Soloed"
+    } else {
+        publishState = "Unsoloed"
+    }
+
+    await updateSensor(topic, publishState)
+}
 
 async function syncMute(topic: string, channelselector: channelSelector): Promise<void> {
     const state = await getMute(channelselector)
@@ -64,6 +78,9 @@ export async function syncEntities(mixConfig: any, mixIndex: number): Promise<vo
             }
             else if (currentFeature.type == "link") {
                 await syncLink(topic, channel);
+            }
+            else if (currentFeature.type == "solo"){
+                await syncSolo(topic, channel);
             }
 
         }
