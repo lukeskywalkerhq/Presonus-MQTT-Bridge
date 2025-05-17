@@ -136,14 +136,12 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
 
     for (const device of discoveryPayload) {
 
-        const type: string = device.type;
         const config: string = device.config;
-        const input: string = device.input;
-        const command: string = device.commandType;
-        const mixName: string = device.mixName;
-        const index: number = device.index;
 
-        let discoveryTopic = `${type}/${mixName}/${input}/${command}/${index}/config`;
+        const node_id: string = `${device.mixName}_${device.input}`;
+        const object_id: string = `${device.commandType}_${device.index + 1}`;
+
+        let discoveryTopic = `${device.type}/${node_id}/${object_id}/config`;
         if (prefix) {
             discoveryTopic = `${prefix}/${discoveryTopic}`;
         }
@@ -154,7 +152,7 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
     }
 
     // Publish the entire batch with a single delay
-    const publishDelay = 100; // Adjust this delay as needed
+    const publishDelay = 500; // Adjust this delay as needed
     await new Promise(resolve => setTimeout(resolve, publishDelay));
 
     for (const item of batchPayload) {

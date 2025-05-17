@@ -35,7 +35,8 @@ function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex
     const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
 
     return {
-            unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+            unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type`,
+            name: `${mixName} ${mixIndex} ${feature.name} ${entityIndex} ${feature.type}`,
             component: 'number',
             device_class: "number",
             command_topic: baseURL + "/command",
@@ -63,8 +64,8 @@ function getLightJSON(mixName: string, mixIndex: number, feature: any, entityInd
     return {
         type: "light",
         config: {
-            name: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}\``,
-            unique_id: `${baseURL}_color`,
+            unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+            name: `${mixName} ${mixIndex} ${feature.name} ${feature.type} ${entityIndex}`,
             command_topic: baseURL + "/command",
             state_topic: baseURL + "/set",
             availability_topic: `presonus/${mixName}`,
@@ -83,6 +84,7 @@ function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityInd
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+        name: `${mixName} ${mixIndex} ${feature.name} ${feature.type} ${entityIndex}`,
         component: 'number',
         device_class: "number",
         command_topic: baseURL + "/command",
@@ -109,6 +111,7 @@ function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityInde
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+        name: `${mixName} ${mixIndex} ${feature.name} ${feature.type} ${entityIndex}`,
         component: 'switch',
         device_class: "switch",
         command_topic: baseURL + "/command",
@@ -135,6 +138,7 @@ function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityInde
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+        name: `${mixName} ${mixIndex} ${feature.name} ${feature.type} ${entityIndex}`,
         component: 'switch',
         device_class: "switch",
         command_topic: baseURL + "/command",
@@ -161,6 +165,7 @@ function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityInde
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${feature.type}_${entityIndex}`,
+        name: `${mixName} ${mixIndex} ${feature.name} ${feature.type} ${entityIndex}`,
         component: 'switch',
         device_class: "switch",
         command_topic: baseURL + "/command",
@@ -234,7 +239,7 @@ export function getDiscoveryJSON(config: mixGroup, index: number): any {
                 type: type,
                 mixName: `${mixName}_${mixIndex}`,
                 input: feature.name,
-                commandType: commandType = "mute",
+                commandType: commandType,
                 index: inputIndex,
                 config: data
             }
