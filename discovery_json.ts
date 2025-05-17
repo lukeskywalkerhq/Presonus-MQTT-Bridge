@@ -32,7 +32,7 @@ interface inputControl {
 
 
 function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
             unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -40,7 +40,7 @@ function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex
             component: 'number',
             device_class: "number",
             command_topic: baseURL + "/command",
-            state_topic: baseURL + "/set",
+            state_topic: baseURL + "/state",
             availability_topic: `presonus/${mixName}`,
             payload_available: "Online",
             payload_not_available: "Offline",
@@ -59,7 +59,7 @@ function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex
 }
 
 function getLightJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         type: "light",
@@ -67,7 +67,7 @@ function getLightJSON(mixName: string, mixIndex: number, feature: any, entityInd
             unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
             name: `${mixName} ${mixIndex} ${feature.name} ${entityIndex} ${feature.type}`,
             command_topic: baseURL + "/command",
-            state_topic: baseURL + "/set",
+            state_topic: baseURL + "/state",
             availability_topic: `presonus/${mixName}`,
             payload_available: "Online",
             payload_not_available: "Offline",
@@ -80,7 +80,7 @@ function getLightJSON(mixName: string, mixIndex: number, feature: any, entityInd
 }
 
 function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -88,7 +88,7 @@ function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityInd
         component: 'number',
         device_class: "number",
         command_topic: baseURL + "/command",
-        state_topic: baseURL + "/set",
+        state_topic: baseURL + "/state",
         availability_topic: `presonus/${mixName}`,
         payload_available: "Online",
         payload_not_available: "Offline",
@@ -107,7 +107,7 @@ function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityInd
 }
 
 function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -115,7 +115,7 @@ function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityInde
         component: 'switch',
         device_class: "switch",
         command_topic: baseURL + "/command",
-        state_topic: baseURL + "/set",
+        state_topic: baseURL + "/state",
         availability_topic: `presonus/${mixName}`,
         payload_available: "Online",
         payload_not_available: "Offline",
@@ -134,7 +134,7 @@ function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityInde
 }
 
 function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -142,7 +142,7 @@ function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityInde
         component: 'switch',
         device_class: "switch",
         command_topic: baseURL + "/command",
-        state_topic: baseURL + "/set",
+        state_topic: baseURL + "/state",
         availability_topic: `presonus/${mixName}`,
         payload_available: "Online",
         payload_not_available: "Offline",
@@ -161,7 +161,7 @@ function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityInde
 }
 
 function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${feature.type}/${entityIndex}`;
+    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -169,7 +169,7 @@ function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityInde
         component: 'switch',
         device_class: "switch",
         command_topic: baseURL + "/command",
-        state_topic: baseURL + "/set",
+        state_topic: baseURL + "/state",
         availability_topic: `presonus/${mixName}`,
         payload_available: "Online",
         payload_not_available: "Offline",

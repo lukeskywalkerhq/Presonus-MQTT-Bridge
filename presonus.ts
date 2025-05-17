@@ -12,8 +12,31 @@ import {
 } from "./mqtt";
 import {getConfiguration, getDiscoveryJSON} from "./discovery_json";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
+import {syncEntities} from "./sync";
 
 let clientPresonus: Client | null = null; // Initialize as null
+
+export async function getLink(channelSelector: channelSelector) :Promise<boolean> {
+    return clientPresonus.getSolo(channelSelector)
+}
+
+export async function getMute(channelSelector: channelSelector) :Promise<boolean> {
+    return clientPresonus.getMute(channelSelector)
+}
+
+export async function getSolo(channelSelector: channelSelector) :Promise<boolean> {
+    return clientPresonus.getSolo(channelSelector)
+}
+
+export async function getLevel(channelSelector: channelSelector) :Promise<boolean> {
+    return clientPresonus.getLevel(channelSelector)
+}
+
+export async function getColor(channelSelector: channelSelector) :Promise<boolean> {
+    return clientPresonus.getColour(channelSelector)
+}
+
+//todo convert all topics to channelselectors in functions
 
 export async function updatePresonusColor(topic: string, state: string) {
     const selected: channelSelector = getChannelSelector(topic)
@@ -66,7 +89,7 @@ export async function updatePresonusMute(topic: string, state: string){
     clientPresonus.setMute(selected, muteState)
 }
 
-function getChannelSelector(topic: string){
+export function getChannelSelector(topic: string){
     const topics: string[] = topic.split("/")
     const mix: string = topics[1].replace(/[0-9]/g, '').toUpperCase();
     const mixCh: number = Number(topics[1].replace(/\D/g,''));
@@ -92,9 +115,6 @@ function getChannelSelector(topic: string){
             channel: ch
         }
     }
-
-    console.log(topic)
-    console.log(selected)
     return selected;
 }
 
@@ -137,8 +157,11 @@ export async function connectPresonus(options: any): Promise<boolean> {
                 if (mixConfig.features.length > 0){
                     const publishgroup: any[] = getDiscoveryJSON(mixConfig, mixIndex + 1);
                     await publishDiscoveryData(publishgroup)
+                    await syncEntities(mixConfig, mixIndex + 1)
                 }
             }
+
+            await updateSensor(`${mixConfig.name}`, "Online", false)
         }
 
         //await updateSensor('system/status', 'Syncing', false);

@@ -252,6 +252,8 @@ export async function MQTTEvent(topic: string, message: Buffer){
     if (topic.includes("set")){
         console.log("topic : " + topic + " Updated to : " + message);
 
+        //todo convert topics to type channelselector
+
         if (topic.includes("mute")) {
             await updatePresonusMute(topic, message.toString('utf-8'));
         }
