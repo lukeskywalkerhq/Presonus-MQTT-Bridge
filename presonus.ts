@@ -38,7 +38,7 @@ export async function getLevel(channelSelector: channelSelector) :Promise<number
     return clientPresonus.getLevel(channelSelector)
 }
 
-export async function getColor(channelSelector: channelSelector) :Promise<any> {
+export async function getColor(channelSelector: channelSelector) :Promise<string> {
     return clientPresonus.getColour(channelSelector)
 }
 

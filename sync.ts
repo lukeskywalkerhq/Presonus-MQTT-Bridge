@@ -1,17 +1,54 @@
-import {getLink, getMute, getSolo, getLevel, getPan} from "./presonus";
+import {getLink, getMute, getSolo, getLevel, getPan, getColor} from "./presonus";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 import {updateSensor} from "./mqtt";
 
 async function syncPan(topic: string, channelselector: channelSelector): Promise<void> {
+    //API does not have getPan function
+    // leaving this here in case changes are made to support function
+    /*
     const state: string = await getPan(channelselector).toString()
 
     await updateSensor(topic, state)
+
+     */
+    await updateSensor(topic, "50");
+}
+
+async function syncColor(topic: string, channelselector: channelselector): Promise<void> {
+    const state: string | null | undefined = await getColor(channelselector);
+    let color: string;
+    let powerState: string;
+
+    if (!state) {
+        color = "0,0,0";
+        powerState = "OFF"
+    } else {
+        if (typeof state === 'string' && state.length >= 6) {
+            try {
+                const red = parseInt(state.substring(0, 2), 16);
+                const green = parseInt(state.substring(2, 4), 16);
+                const blue = parseInt(state.substring(4, 6), 16);
+                color = `${red},${green},${blue}`;
+                powerState = "ON"
+            } catch (error) {
+                console.error("Error converting hex to RGB:", error);
+                color = "0,0,0";
+                powerState = "OFF"
+            }
+        } else {
+            console.warn("Unexpected state format:", state);
+            color = "0,0,0";
+            powerState = "OFF"
+        }
+    }
+    await updateSensor(topic + "/rgb", color);
+    await updateSensor(topic + "/power", powerState);
 }
 
 async function syncFaders(topic: string, channelselector: channelSelector): Promise<void> {
-    const state: string = await getLevel(channelselector).toString()
-
-    await updateSensor(topic, state)
+    const state: number = await getLevel(channelselector);
+    const roundedState: string = state.toFixed(1);
+    await updateSensor(topic, roundedState);
 }
 
 
@@ -44,6 +81,9 @@ async function syncMute(topic: string, channelselector: channelSelector): Promis
 }
 
 async function syncLink(topic: string, channelselector: channelSelector): Promise<void> {
+    //API Does not have getLink function
+    // leaving this here just in case it gets added later
+    /*
     const state: boolean = await getLink(channelselector)
 
     let publishState: string
@@ -55,6 +95,9 @@ async function syncLink(topic: string, channelselector: channelSelector): Promis
     }
 
     await updateSensor(topic, publishState)
+
+     */
+    await updateSensor(topic, "Unlinked")
 }
 
 function getChannelSelector(mixconfig: any, mixChannel: number, inputChannel: number, feature: string): channelSelector {
@@ -98,6 +141,9 @@ export async function syncEntities(mixConfig: any, mixIndex: number): Promise<vo
             }
             else if (currentFeature.type == "pan"){
                 await syncPan(topic, channel);
+            }
+            else if (currentFeature.type == "color"){
+                await syncColor(topic, channel);
             }
 
         }

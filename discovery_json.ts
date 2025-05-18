@@ -61,20 +61,24 @@ function getLightJSON(mixName: string, mixIndex: number, feature: any, entityInd
     const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
-        type: "light",
-        config: {
-            unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
-            name: `${mixName} ${mixIndex} ${feature.name} ${entityIndex} ${feature.type}`,
-            command_topic: baseURL + "/command",
-            state_topic: baseURL + "/state",
-            availability_topic: `presonus/${mixName}`,
-            payload_available: "Online",
-            payload_not_available: "Offline",
-            rgb_state_topic: `${baseURL}/rgb/state`,
-            rgb_command_topic: `${baseURL}/rgb/set`,
-            rgb_value_template: "{{ value_json.rgb }}",
-            supported_color_modes: ["rgb"]
-        },
+        unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
+        name: `${mixName} ${mixIndex} ${feature.name} ${entityIndex} ${feature.type}`,
+        command_topic: baseURL + "/command/power",
+        state_topic: baseURL + "/state/power",
+        availability_topic: `presonus/${mixName}`,
+        payload_available: "Online",
+        payload_not_available: "Offline",
+        rgb_state_topic: `${baseURL}/state/rgb`,
+        rgb_command_topic: `${baseURL}/command/rgb`,
+        rgb_value_template: "{{ value_json.rgb }}",
+        supported_color_modes: ["rgb"],
+        icon: "mdi:equalizer",
+        device: {
+            name: `${mixName} ${mixIndex}`,
+            identifiers: [`${mixName}_${mixIndex}`],
+            manufacturer: manufacturer,
+            model: "unknown"
+        }
     };
 }
 
