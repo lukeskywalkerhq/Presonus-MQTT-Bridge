@@ -5,6 +5,7 @@ import {updateSensor} from "./mqtt";
 async function syncPan(topic: string, channelselector: channelSelector): Promise<void> {
     //API does not have getPan function
     // leaving this here in case changes are made to support function
+    //todo add check to see if value exists before overwriting
     /*
     const state: string = await getPan(channelselector).toString()
 
