@@ -1,10 +1,22 @@
-import {getLink, getMute, getSolo} from "./presonus";
+import {getLink, getMute, getSolo, getLevel, getPan} from "./presonus";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 import {updateSensor} from "./mqtt";
 
+async function syncPan(topic: string, channelselector: channelSelector): Promise<void> {
+    const state: string = await getPan(channelselector).toString()
+
+    await updateSensor(topic, state)
+}
+
+async function syncFaders(topic: string, channelselector: channelSelector): Promise<void> {
+    const state: string = await getLevel(channelselector).toString()
+
+    await updateSensor(topic, state)
+}
+
 
 async function syncSolo(topic: string, channelselector: channelSelector): Promise<void> {
-    const state = await getSolo(channelselector)
+    const state: boolean = await getSolo(channelselector)
 
     let publishState: string
     if (state)
@@ -18,7 +30,7 @@ async function syncSolo(topic: string, channelselector: channelSelector): Promis
 }
 
 async function syncMute(topic: string, channelselector: channelSelector): Promise<void> {
-    const state = await getMute(channelselector)
+    const state: boolean = await getMute(channelselector)
 
     let publishState: string
     if (state)
@@ -32,8 +44,7 @@ async function syncMute(topic: string, channelselector: channelSelector): Promis
 }
 
 async function syncLink(topic: string, channelselector: channelSelector): Promise<void> {
-    //todo may not be working
-    const state = await getLink(channelselector)
+    const state: boolean = await getLink(channelselector)
 
     let publishState: string
     if (state)
@@ -81,6 +92,12 @@ export async function syncEntities(mixConfig: any, mixIndex: number): Promise<vo
             }
             else if (currentFeature.type == "solo"){
                 await syncSolo(topic, channel);
+            }
+            else if (currentFeature.type == "fader"){
+                await syncFaders(topic, channel);
+            }
+            else if (currentFeature.type == "pan"){
+                await syncPan(topic, channel);
             }
 
         }

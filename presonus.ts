@@ -16,8 +16,14 @@ import {syncEntities} from "./sync";
 
 let clientPresonus: Client | null = null; // Initialize as null
 
+export async function getPan(channelSelector: channelSelector) :Promise<number> {
+    //todo link function missing from api
+    return 50
+}
+
 export async function getLink(channelSelector: channelSelector) :Promise<boolean> {
-    return clientPresonus.getSolo(channelSelector)
+    //todo link function missing from api
+    return false
 }
 
 export async function getMute(channelSelector: channelSelector) :Promise<boolean> {
@@ -28,11 +34,11 @@ export async function getSolo(channelSelector: channelSelector) :Promise<boolean
     return clientPresonus.getSolo(channelSelector)
 }
 
-export async function getLevel(channelSelector: channelSelector) :Promise<boolean> {
+export async function getLevel(channelSelector: channelSelector) :Promise<number> {
     return clientPresonus.getLevel(channelSelector)
 }
 
-export async function getColor(channelSelector: channelSelector) :Promise<boolean> {
+export async function getColor(channelSelector: channelSelector) :Promise<any> {
     return clientPresonus.getColour(channelSelector)
 }
 
