@@ -185,6 +185,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
 
         //todo add mutegroups
         //todo add color update
+        //todo change to (topic, state) format
         if (code == "PV" && data.name.includes("select")){
             updateMQTTSelect(data);
         } else if (code == "PV" && data.name.includes("mute")){

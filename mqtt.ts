@@ -13,7 +13,7 @@ export async function updateMQTTColor(data: any){
     const value: string = data.value
     const name: string = type + "_" + ch
 
-    const topic: string = "presonus/main_1/color/" + name + "/rgb/state";
+    const topic: string = "presonus/main/1/color/" + name + "/rgb/state";
 
     await updateSensor(topic, value);
 }
