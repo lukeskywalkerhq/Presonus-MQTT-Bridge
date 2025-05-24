@@ -186,6 +186,8 @@ export async function connectPresonus(options: any): Promise<boolean> {
         //todo add mutegroups
         //todo add color update
         //todo change to (topic, state) format
+
+
         if (code == "PV" && data.name.includes("select")){
             updateMQTTSelect(data);
         } else if (code == "PV" && data.name.includes("mute")){
@@ -198,7 +200,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
             updateMQTTScreen(data);
         } else if (code == "PV" && data.name.includes("clip")){
             updateMQTTPeak(data);
-        } else if (code == "PV"){
+        } else if (code == "PV" && data.name.includes("ch")){
             updateMQTTAuxFader(data);
         } else if (code == "MS"){
             updateMQTTMainFader(data);

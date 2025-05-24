@@ -61,41 +61,42 @@ export async function updateMQTTMainFader(data: any) {
 }
 
 export async function updateMQTTAuxFader(data){
-    const names = data.name.split("/")
-    const type = names[0]
-    const channel = names[1].slice(2)
-    const mix = names[2]
-    const topic = mix + '/' +  type + '/' + channel + '/level/state'
-    const value = (data.value * 100).toFixed(1)
+    const names: string[] = data.name.split("/")
+    const inputType: string = names[0]
+    const inputChannel: string = names[1].slice(2)
+    const mixType: string = names[2].replace(/\d/g, "");
+    const mixChannel: string = names[2].replace(/[a-zA-Z]/g, "");
+    const topic: string = `${mixType}/${mixChannel}/${inputType}/${inputChannel}/fader/state`;
+    const value: string = (data.value * 100).toFixed(1)
     await updateSensor(topic, value, false)
 }
 
 export async function updateMQTTSolo(data){
-    //todo add masters and returns
-    // fx and fxreturns dont have solo
-    //todo check for options to see if enabled
-    const names = data.name.split("/")
-    const channel = names[1].slice(2)
-    const topic :string = 'main1/solo/' + channel + '/solo/state'
+    const names: string[] = data.name.split("/")
+    const channel: string = names[1].slice(2)
+    const topic :string = 'main/1/solo/' + channel + '/state'
     await updateSensor(topic, data.value ? 'Soloed' : 'Unsoloed', false)
 }
 
 export async function updateMQTTAuxMute(data: any){
-    //todo add check
-    const names = data.name.split("/")
-    const channel = names[1].slice(2)
-    const mix = names[2].split("_")[1]
-    const topic :string = mix + '/line/' + channel + '/mute/state'
-    await updateSensor(topic, data.value ? 'Muted' : 'Unmuted', false)
+    const names: string[] = data.name.split("/")
+    const inputType: string = names[0]
+    const inputChannel: string = names[1].slice(2)
+
+    const mix: string = names[2].split("_")[1]
+    const mixType: string = mix.replace(/\d/g, "");
+    const mixChannel: string = mix.replace(/[a-zA-Z]/g, "");
+
+
+    const topic :string = `${mixType}/${mixChannel}/${inputType}/${inputChannel}/mute/state`;
+    await updateSensor(topic, data.value ? 'Unmuted' : 'Muted', false)
 }
 
 export async function updateMQTTMainMute(data: any){
-    //todo check for options to see if enabled
     const names = data.name.split("/")
     const channel = names[1].slice(2)
-    const topic :string = 'main1/line/' + channel + '/mute/state'
+    const topic :string = 'main/1/line/' + channel + '/mute/state'
     await updateSensor(topic, data.value ? 'Muted' : 'Unmuted', false)
-    //todo add check to see if muted on all other mixes
 }
 
 export async function updateMQTTSelect(data: any): Promise<void> {
