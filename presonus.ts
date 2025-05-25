@@ -13,7 +13,7 @@ import {
 } from "./mqtt";
 import {getConfiguration, getDiscoveryJSON} from "./discovery_json";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
-import {syncEntities} from "./sync";
+import {syncEntities, syncTalkback, setConfiguration, syncMuteGroups} from "./sync";
 
 let clientPresonus: Client | null = null; // Initialize as null
 
@@ -157,6 +157,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
         await updateSensor('system/status', 'Configuring', false);
         const configData = getConfiguration(channels, options);
 
+        setConfiguration(configData)
 
         for (const mix in configData.mixes){
             const mixConfig = configData.mixes[mix];
@@ -186,10 +187,16 @@ export async function connectPresonus(options: any): Promise<boolean> {
 
         //todo add mutegroups
         //todo change to (topic, state) format
+        //todo add talkback
+        //todo update names???
 
 
         if (code == "PV" && data.name.includes("select")){
             updateMQTTSelect(data);
+        } else if (code == "PV" && data.name.includes("mutegroup")){
+            syncMuteGroups(data);
+        } else if (code == "PV" && data.name.includes("talkback")){
+            syncTalkback(data);
         } else if (code == "PV" && data.name.includes("mute")){
             updateMQTTMainMute(data);
         } else if (code == "PV" && data.name.includes("assign")){

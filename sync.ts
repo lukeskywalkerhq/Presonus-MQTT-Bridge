@@ -2,6 +2,46 @@ import {getLink, getMute, getSolo, getLevel, getPan, getColor} from "./presonus"
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 import {updateSensor} from "./mqtt";
 
+let configuration: any = null
+
+export function setConfiguration(localConfiguration: any){
+    configuration = localConfiguration
+}
+
+export async function syncTalkback(data: any){
+    for (const mix in configuration.mixes){
+        const mixConfig = configuration.mixes[mix];
+
+        if (mixConfig.supported_inputs && mixConfig.supported_inputs.includes("talkback")){
+            for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
+                const topic: string = `${mixConfig.name}/${mixIndex + 1}/talkback/1/mute/state`
+                await updateSensor(topic, data.value ? 'Unmuted' : 'Muted', false)
+            }
+        }
+
+    }
+}
+
+export async function syncMuteGroups(data: any){
+    for (const mix in configuration.mixes){
+        const mixConfig = configuration.mixes[mix];
+
+        if (mixConfig.supported_controls && mixConfig.supported_controls.mute){
+            for (let mixIndex: number = 0; mixIndex < mixConfig.size; mixIndex++) {
+
+                for (const input in mixConfig.supported_inputs){
+                    const inputType: string =  mixConfig.supported_inputs[input];
+
+                    console.dir(mixConfig)
+
+                    console.log(`${mixConfig.name}/${mixIndex + 1}/${inputType}`)
+                }
+            }
+        }
+
+    }
+}
+
 async function syncPan(topic: string, channelselector: channelSelector): Promise<void> {
     //API does not have getPan function
     // leaving this here in case changes are made to support function

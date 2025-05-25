@@ -121,7 +121,7 @@ export async function updateMQTTAuxMute(data: any){
     const mixChannel: string = mix.replace(/[a-zA-Z]/g, "");
 
 
-    const topic :string = `${mixType}/${mixChannel}/${inputType}/${inputChannel}/mute/state`;
+    const topic: string = `${mixType}/${mixChannel}/${inputType}/${inputChannel}/mute/state`;
     await updateSensor(topic, data.value ? 'Unmuted' : 'Muted', false)
 }
 
