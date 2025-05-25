@@ -304,6 +304,7 @@ function getMasterConfig(channels: any, options: any): inputControl[] {
 }
 
 export function getConfiguration(channels: any, options: any): configuration {
+    //todo missing return
     let config: configuration = {
         mixes: [],
         meters: { name: 'meters', enabled: options.meter, controls: getMeterConfig(channels, options)}, // Initialize meters
@@ -321,7 +322,7 @@ export function getConfiguration(channels: any, options: any): configuration {
                     size: channels[mixType.toUpperCase()],
                     supported_inputs: getMixInputs(mixType),
                     supported_controls: getMixFeatures(mixType),
-                    features: [] // You'll likely populate this later
+                    features: []
                 });
             }
         }

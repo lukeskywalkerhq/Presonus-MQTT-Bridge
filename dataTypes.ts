@@ -32,9 +32,8 @@ export function getInputFeatures(input: string): string[] {
     if (input == "line") {
         return ["mute", "fader", "solo", "pan", "link", "color"]
     }
-    //todo check if you can change color of returns
     else if (input == "return") {
-        return ["line", "return", "solo", "color"]
+        return ["mute", "fader", "solo", "color"]
     }
     else if (input == "fxreturn") {
         return ["mute", "fader"]
