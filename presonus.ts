@@ -1,6 +1,7 @@
 import { Client } from './my-repo/src/api';
 import {
     enableChannels,
+    updateMQTTColor,
     updateMQTTAuxFader,
     updateMQTTAuxMute, updateMQTTLastAction, updateMQTTMainFader,
     updateMQTTMainMute, updateMQTTPeak,
@@ -184,7 +185,6 @@ export async function connectPresonus(options: any): Promise<boolean> {
         console.dir(data);
 
         //todo add mutegroups
-        //todo add color update
         //todo change to (topic, state) format
 
 
@@ -202,6 +202,8 @@ export async function connectPresonus(options: any): Promise<boolean> {
             updateMQTTPeak(data);
         } else if (code == "PV" && data.name.includes("ch")){
             updateMQTTAuxFader(data);
+        } else if (code == "PC" && data.name.includes("color")){
+            updateMQTTColor(data);
         } else if (code == "MS"){
             updateMQTTMainFader(data);
         } else {

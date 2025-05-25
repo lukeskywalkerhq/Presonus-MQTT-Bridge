@@ -8,14 +8,43 @@ let prefix:string = null;
 let mqttOptions = null;
 
 export async function updateMQTTColor(data: any){
-    const type: string = data.name.split("/")[0];
-    const ch: string = data.name.split("/")[1].slice(2);
-    const value: string = data.value
-    const name: string = type + "_" + ch
+    const names: string[] = data.name.split("/");
+    const inputType: string = names[0];
+    const inputChannel: string = names[1].slice(2);
+    const topic: string = `main/1/${inputType}/${inputChannel}/color/state`
 
-    const topic: string = "presonus/main/1/color/" + name + "/rgb/state";
+    let color: string;
+    let powerState: string;
 
-    await updateSensor(topic, value);
+    if (!data.value) {
+        color = "0,0,0";
+        powerState = "OFF"
+    } else {
+        if (typeof data.value === 'string' && data.value.length >= 6) {
+            try {
+                const red = parseInt(data.value.substring(0, 2), 16);
+                const green = parseInt(data.value.substring(2, 4), 16);
+                const blue = parseInt(data.value.substring(4, 6), 16);
+                color = `${red},${green},${blue}`;
+
+                if (red > 0 || green > 0 || blue > 0){
+                    powerState = "ON"
+                } else {
+                    powerState = "OFF"
+                }
+            } catch (error) {
+                console.error("Error converting hex to RGB:", error);
+                color = "0,0,0";
+                powerState = "OFF"
+            }
+        } else {
+            console.warn("Unexpected state format:", data.value);
+            color = "0,0,0";
+            powerState = "OFF"
+        }
+    }
+    await updateSensor(topic + "/rgb", color);
+    await updateSensor(topic + "/power", powerState);
 }
 
 export async function updateMQTTPeak(data: any){
@@ -51,7 +80,7 @@ export async function updateMQTTMainFader(data: any) {
 
             if (channels && Array.isArray(channels)) {
                 for (let ch = 1; ch <= channels.length; ch++) {
-                    const topic = `main1/${mixlist[i]}/${ch}/fader/state`;
+                    const topic = `main/1/${mixlist[i]}/${ch}/fader/state`;
                     const value = channels[ch - 1].toFixed(1);
                     await updateSensor(topic, value, false);
                 }
@@ -72,10 +101,14 @@ export async function updateMQTTAuxFader(data){
 }
 
 export async function updateMQTTSolo(data){
-    const names: string[] = data.name.split("/")
-    const channel: string = names[1].slice(2)
-    const topic :string = 'main/1/solo/' + channel + '/state'
-    await updateSensor(topic, data.value ? 'Soloed' : 'Unsoloed', false)
+
+    if (data.name.includes("ch")){
+        const names: string[] = data.name.split("/")
+        const inputChannel: string = names[1].slice(2)
+        const inputType: string = names[0]
+        const topic :string = `main/1/${inputType}/${inputChannel}/solo/state`
+        await updateSensor(topic, data.value ? 'Soloed' : 'Unsoloed', false)
+    }
 }
 
 export async function updateMQTTAuxMute(data: any){

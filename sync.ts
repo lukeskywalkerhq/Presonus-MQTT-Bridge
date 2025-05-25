@@ -30,7 +30,12 @@ async function syncColor(topic: string, channelselector: channelselector): Promi
                 const green = parseInt(state.substring(2, 4), 16);
                 const blue = parseInt(state.substring(4, 6), 16);
                 color = `${red},${green},${blue}`;
-                powerState = "ON"
+
+                if (red > 0 || green > 0 || blue > 0){
+                    powerState = "ON"
+                } else {
+                    powerState = "OFF"
+                }
             } catch (error) {
                 console.error("Error converting hex to RGB:", error);
                 color = "0,0,0";
