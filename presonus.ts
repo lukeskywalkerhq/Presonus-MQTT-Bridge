@@ -97,29 +97,30 @@ export async function updatePresonusMute(topic: string, state: string){
 }
 
 export function getChannelSelector(topic: string){
+    //example topic: presonus/main/1/line/1/mute/state
     const topics: string[] = topic.split("/")
-    const mix: string = topics[1].replace(/[0-9]/g, '').toUpperCase();
-    const mixCh: number = Number(topics[1].replace(/\D/g,''));
-    let type: string = topics[2].toUpperCase()
-    const ch: number = Number(topics[3])
+    const mix: string = topics[1].toUpperCase();
+    const mixCh: number = Number(topics[2]);
+    let inputType: string = topics[3].toUpperCase()
+    const inputCh: number = Number(topics[4])
 
     let selected: channelSelector = null;
 
-    if (type == "SOLO" || type == "COLOR"){
-        type = "LINE"
+    if (inputType == "SOLO" || inputType == "COLOR"){
+        inputType = "LINE"
     }
 
     if (mix == "FX" || mix == "AUX"){
         selected = {
-            type: type,
-            channel: ch,
+            type: inputType,
+            channel: inputCh,
             mixType: mix,
             mixNumber: mixCh
         }
     } else {
         selected = {
-            type: type,
-            channel: ch
+            type: inputType,
+            channel: inputCh
         }
     }
     return selected;

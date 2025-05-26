@@ -29,12 +29,32 @@ export async function syncMuteGroups(data: any){
         if (mixConfig.supported_controls && mixConfig.supported_controls.mute){
             for (let mixIndex: number = 0; mixIndex < mixConfig.size; mixIndex++) {
 
-                for (const input in mixConfig.supported_inputs){
+                for (const input in mixConfig.supported_inputs){ //loop thu inputs
                     const inputType: string =  mixConfig.supported_inputs[input];
 
-                    console.dir(mixConfig)
+                    let inputSize: number = 0;
 
-                    console.log(`${mixConfig.name}/${mixIndex + 1}/${inputType}`)
+                    for(const feature in mixConfig.features){ //get the size of input
+                        const currentFeature: any = mixConfig.features[feature];
+                        if (currentFeature.name == inputType && currentFeature.type == "mute"){
+                            inputSize = currentFeature.size;
+                            break;
+                        }
+                    }
+
+                    for (let i: number = 0; i < inputSize; i++){ //loop thu all mutes channels
+                        console.log(`${mixConfig.name}/${mixIndex + 1}/${inputType}/${i + 1}`)
+
+                        const topic: string = `${mixConfig.name}/${mixIndex + 1}/${inputType}/${i + 1}`
+                        const channelSelector: channelSelector = getChannelSelector(mixConfig, mixIndex, i + 1, inputType)
+
+                        //const state = getMute(channelSelector)
+                        console.dir(channelSelector)
+
+                        await syncMute(topic, channelSelector)
+
+
+                    }
                 }
             }
         }
@@ -149,7 +169,7 @@ async function syncLink(topic: string, channelselector: channelSelector): Promis
 function getChannelSelector(mixconfig: any, mixChannel: number, inputChannel: number, feature: string): channelSelector {
     let selected: channelSelector = null;
 
-    if (mixconfig.name == "fx" || mixconfig.mix == "aux"){
+    if (mixconfig.name == "fx" || mixconfig.name == "aux"){
         selected = {
             type: feature.toUpperCase(),
             channel: inputChannel,
