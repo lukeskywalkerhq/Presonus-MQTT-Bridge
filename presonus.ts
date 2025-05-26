@@ -69,6 +69,27 @@ export async function updatePresonusColor(topic: string, state: string) {
     clientPresonus.setColor(selected, hex);
 }
 
+export async function updatePresonusPan(topic: string, state: string) {
+    const selected: channelSelector = getChannelSelector(topic)
+    const level: number = Number(state)
+
+    await clientPresonus.setPan(selected, state);
+}
+
+export async function updatePresonusLink(topic: string, state: string){
+
+    const selected = getChannelSelector(topic)
+
+    let soloState: boolean;
+    if(state == "linked"){
+        soloState = true;
+    } else if(state == "unlinkeded"){
+        soloState = false;
+    }
+
+    clientPresonus.setSolo(selected, soloState);
+}
+
 export async function updatePresonusSolo(topic: string, state: string){
 
     const selected = getChannelSelector(topic)

@@ -1,5 +1,5 @@
 import * as mqtt from 'mqtt';
-import {updatePresonusColor, updatePresonusFader, updatePresonusMute, updatePresonusSolo} from "./presonus";
+import {updatePresonusColor, updatePresonusFader, updatePresonusMute, updatePresonusSolo, updatePresonusPan, updatePresonusLink} from "./presonus";
 
 let mqttClient: mqtt.MqttClient | null = null;
 let mqttStatus = "disconnected";
@@ -286,8 +286,6 @@ export async function MQTTEvent(topic: string, message: Buffer){
     if (topic.includes("command")){
         console.log("topic : " + topic + " Updated to : " + message);
 
-        //todo convert topics to type channelselector
-
         if (topic.includes("mute")) {
             await updatePresonusMute(topic, message.toString('utf-8'));
         }
@@ -299,6 +297,12 @@ export async function MQTTEvent(topic: string, message: Buffer){
         }
         else if (topic.includes("color")) {
             await updatePresonusColor(topic, message.toString('utf-8'))
+        }
+        else if (topic.includes("link")) {
+            await updatePresonusLink(topic, message.toString('utf-8'))
+        }
+        else if (topic.includes("pan")) {
+            await updatePresonusPan(topic, message.toString('utf-8'))
         }
     }
 }
