@@ -69,8 +69,7 @@ function getOptions(): any {
 }
 
 async function connect(): Promise<void> {
-    //todo add masters, links, pan
-    //todo separate mute, & fader from line
+    //todo add masters
     options = getOptions();
 
     if (options) {

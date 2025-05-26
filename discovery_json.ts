@@ -1,35 +1,7 @@
 import {getInputFeatures, getMixFeatures, getMixInputs} from "./dataTypes";
-import {publishLayout, SwitchConfig} from "./interfaces";
+import {publishLayout, configuration, meterGroup, mixGroup, inputControl} from "./interfaces";
 
 const manufacturer = "Presonus"
-
-interface configuration{
-    mixes: mixGroup[]
-    meters: meterGroup
-    masters: mixGroup
-}
-
-interface meterGroup{
-    name: string;
-    features: inputControl[],
-    enabled: boolean,
-}
-
-interface mixGroup{
-    name: string;
-    size: number;
-    supported_inputs: string[];
-    supported_controls: any;
-    enabled?: boolean,
-    features: inputControl[]
-}
-
-interface inputControl {
-    name: string;
-    size: number;
-    type: string;
-}
-
 
 function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
     const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;

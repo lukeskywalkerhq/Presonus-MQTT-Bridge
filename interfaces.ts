@@ -127,3 +127,30 @@ export interface SwitchConfig extends HomeAssistantEntityConfig {
     value_template?: string;
     assumed_state?: boolean;
 }
+
+export interface configuration{
+    mixes: mixGroup[]
+    meters: meterGroup
+    masters: mixGroup
+}
+
+export interface meterGroup{
+    name: string;
+    features: inputControl[],
+    enabled: boolean,
+}
+
+export interface mixGroup{
+    name: string;
+    size: number;
+    supported_inputs: string[];
+    supported_controls: any;
+    enabled?: boolean,
+    features: inputControl[]
+}
+
+export interface inputControl {
+    name: string;
+    size: number;
+    type: string;
+}

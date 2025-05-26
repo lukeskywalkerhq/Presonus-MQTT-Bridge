@@ -71,7 +71,6 @@ export async function updatePresonusColor(topic: string, state: string) {
 
 export async function updatePresonusPan(topic: string, state: string) {
     const selected: channelSelector = getChannelSelector(topic)
-    const level: number = Number(state)
 
     await clientPresonus.setPan(selected, state);
 }
@@ -87,7 +86,7 @@ export async function updatePresonusLink(topic: string, state: string){
         soloState = false;
     }
 
-    clientPresonus.setSolo(selected, soloState);
+    clientPresonus.setLink(selected, soloState);
 }
 
 export async function updatePresonusSolo(topic: string, state: string){
@@ -106,7 +105,6 @@ export async function updatePresonusSolo(topic: string, state: string){
 
 export async function updatePresonusFader(topic: string, state: string){
     //Ex: Topic : presonus/main1/line/1/fader/set State: 11.3
-    //todo add mix, main, mono
 
     const selected = getChannelSelector(topic)
     const level: number = Number(state)
@@ -115,7 +113,6 @@ export async function updatePresonusFader(topic: string, state: string){
 }
 
 export async function updatePresonusMute(topic: string, state: string){
-    //todo add mute options for auxs, fx
     // Example Data: Topic : presonus/main/1/line/1/mute/state State : Unmuted
 
     const selected = getChannelSelector(topic)
@@ -207,13 +204,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
             await updateSensor(`${mixConfig.name}`, "Online", false)
         }
 
-        //await updateSensor('system/status', 'Syncing', false);
-        //await updateMQTTScene(clientPresonus.currentScene)
-        //await updateMQTTProject(clientPresonus.currentProject)
-        //await sync(channels, options);
-        //await updateSensor('system/status', 'Enabling', false);
-        //await enableChannels(options);
-        //await updateSensor('system/status', 'Ready', false);
+        await updateSensor('system/status', 'Ready', false);
     });
 
     clientPresonus.on('data', function ({ code, data }) {
