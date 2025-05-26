@@ -264,12 +264,22 @@ function getMasterConfig(channels: any, options: any): inputControl[] {
 
     for (const mix in options.mixes){
         if (options.mixes[mix] && channels[mix.toUpperCase()] > 0){
-            const newInput: inputControl = {
-                name: "master",
-                size: channels[mix.toUpperCase()],
-                type: mix
+            if (options.controls.mute && mix != "master"){
+                const masterMute: inputControl = {
+                    name: mix,
+                    size: channels[mix.toUpperCase()],
+                    type: "mute"
+                }
+                masterConfig.push(masterMute)
             }
-            masterConfig.push(newInput)
+            if (options.controls.fader && mix != "master"){
+                const masterFader: inputControl = {
+                    name: mix,
+                    size: channels[mix.toUpperCase()],
+                    type: "fader"
+                }
+                masterConfig.push(masterFader)
+            }
         }
     }
     return masterConfig
@@ -280,15 +290,13 @@ export function getConfiguration(channels: any, options: any): configuration {
     let config: configuration = {
         mixes: [],
         meters: { name: 'meters', enabled: options.meter, controls: getMeterConfig(channels, options)}, // Initialize meters
-        masters: { name: 'masters', size: 1, enabled: options.masters, features: getMasterConfig(channels, options) } // Initialize masters
+        masters: { name: 'masters', size: 1, enabled: options.master, features: getMasterConfig(channels, options) } // Initialize masters
     };
-
-
 
     // Process mixes based on options.mixes
     if (options.mixes) {
         for (const mixType in options.mixes) {
-            if (options.mixes[mixType] && channels[mixType.toUpperCase()]) {
+            if (options.mixes[mixType] && channels[mixType.toUpperCase()] && mixType != "master" && mixType != "mono") {
                 config.mixes.push({
                     name: mixType,
                     size: channels[mixType.toUpperCase()],

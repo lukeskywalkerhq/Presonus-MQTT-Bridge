@@ -2,7 +2,6 @@ import * as mqtt from 'mqtt';
 import {updatePresonusColor, updatePresonusFader, updatePresonusMute, updatePresonusSolo, updatePresonusPan, updatePresonusLink} from "./presonus";
 
 let mqttClient: mqtt.MqttClient | null = null;
-let mqttStatus = "disconnected";
 
 let prefix:string = null;
 let mqttOptions = null;
@@ -152,10 +151,6 @@ export async function enableChannels(options: any) {
     await updateSensor('main', options.main ? 'Online' : 'Offline', true);
 }
 
-export function getMQTTStatus(): string {
-    return mqttStatus;
-}
-
 export async function publishDiscoveryData(discoveryPayload: any[]) {
     if (!mqttClient || !mqttClient.connected) {
         console.error('MQTT client is not connected. Cannot publish discovery data.');
@@ -182,7 +177,7 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
     }
 
     // Publish the entire batch with a single delay
-    const publishDelay = 500; // Adjust this delay as needed
+    const publishDelay = mqttOptions.publishDelay; // Adjust this delay as needed
     await new Promise(resolve => setTimeout(resolve, publishDelay));
 
     for (const item of batchPayload) {
@@ -202,7 +197,6 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
 export async function connectMQTT(mqttConfig: any): Promise<void> {
     if (!mqttConfig || !mqttConfig.url) {
         console.error("MQTT configuration is missing or invalid.");
-        mqttStatus = "error";
         return;
     }
 
@@ -224,19 +218,16 @@ export async function connectMQTT(mqttConfig: any): Promise<void> {
 
         mqttClient.on('connect', () => {
             console.log('Connected to MQTT broker');
-            mqttStatus = "connected";
             resolve();
         });
 
         mqttClient.on('error', (err) => {
             console.error('MQTT connection error:', err);
-            mqttStatus = "error";
             reject(err);
         });
 
         mqttClient.on('offline', () => {
             console.log('MQTT client offline');
-            mqttStatus = "offline";
         });
     });
 }
@@ -312,7 +303,6 @@ export function disconnectMQTT(): void {
     if (mqttClient) {
         mqttClient.end();
         mqttClient = null;
-        mqttStatus = "disconnected";
         console.log('Disconnected from MQTT broker');
     }
 }

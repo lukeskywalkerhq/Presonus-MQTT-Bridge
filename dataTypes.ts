@@ -18,7 +18,6 @@ export function getMixFeatures(mix: string) {
             color: true
         }
     }
-    //todo check if you can pan in aux
     else if (mix == "aux" || mix == "fx") {
         return{
             mute: true,
@@ -35,10 +34,7 @@ export function getInputFeatures(input: string): string[] {
     else if (input == "return") {
         return ["mute", "fader", "solo", "color"]
     }
-    else if (input == "fxreturn") {
-        return ["mute", "fader"]
-    }
-    else if (input == "talkback") {
+    else if (input == "fxreturn" || input == "talkback") {
         return ["mute", "fader"]
     }
 }

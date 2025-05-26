@@ -190,6 +190,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
         const configData = getConfiguration(channels, options);
 
         setConfiguration(configData)
+        console.dir(configData)
 
         for (const mix in configData.mixes){
             const mixConfig = configData.mixes[mix];
