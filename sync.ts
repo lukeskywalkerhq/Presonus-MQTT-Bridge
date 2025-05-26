@@ -43,7 +43,6 @@ export async function syncMuteGroups(data: any){
                     }
 
                     for (let i: number = 0; i < inputSize; i++){ //loop thu all mutes channels
-                        console.log(`${mixConfig.name}/${mixIndex + 1}/${inputType}/${i + 1}`)
 
                         const topic: string = `${mixConfig.name}/${mixIndex + 1}/${inputType}/${i + 1}/mute/state`
                         const channelSelector: channelSelector = getChannelSelector(mixConfig, mixIndex + 1, i + 1, inputType)

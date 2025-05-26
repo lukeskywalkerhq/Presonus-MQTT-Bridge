@@ -47,12 +47,25 @@ export async function getColor(channelSelector: channelSelector) :Promise<string
 
 export async function updatePresonusColor(topic: string, state: string) {
     const selected: channelSelector = getChannelSelector(topic)
-    const colorChannels = state.split(",")
-    const red = Number(colorChannels[0]).toString(16)
-    const green = Number(colorChannels[1]).toString(16)
-    const blue = Number(colorChannels[2]).toString(16)
-    const hex = red + green + blue
+    let hex: string
 
+    if (topic.includes("rgb")) {
+        const colorChannels = state.split(",")
+        const red = Number(colorChannels[0]).toString(16)
+        const green = Number(colorChannels[1]).toString(16)
+        const blue = Number(colorChannels[2]).toString(16)
+        hex = red + green + blue
+    }
+
+    else if (topic.includes("power")) {
+        if (state == "ON") {
+            hex = "ffffffff"
+        }  else if (state = "OFF") {
+            hex = "00000000"
+        }
+    }
+
+    console.log(selected, hex, state, topic);
     clientPresonus.setColor(selected, hex);
 }
 
@@ -61,9 +74,9 @@ export async function updatePresonusSolo(topic: string, state: string){
     const selected = getChannelSelector(topic)
 
     let soloState: boolean;
-    if(state == "Soloed"){
+    if(state == "soloed"){
         soloState = true;
-    } else if(state == "Unsoloed"){
+    } else if(state == "unsoloed"){
         soloState = false;
     }
 
@@ -82,14 +95,14 @@ export async function updatePresonusFader(topic: string, state: string){
 
 export async function updatePresonusMute(topic: string, state: string){
     //todo add mute options for auxs, fx
-    // Example Data: Topic : presonus/main1/line/1/mute/state State : Unmuted
+    // Example Data: Topic : presonus/main/1/line/1/mute/state State : Unmuted
 
     const selected = getChannelSelector(topic)
 
     let muteState: boolean;
-    if(state == "Muted"){
+    if(state == "muted"){
         muteState = true;
-    } else if(state == "Unmuted"){
+    } else if(state == "unmuted"){
         muteState = false;
     }
 

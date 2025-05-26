@@ -2,7 +2,7 @@
   "system": {
     "HomeAssistantAutoConfig": true,
     "periodicResync": true,
-    "resyncTime": 1
+    "rapidConnect": true
   },
   "presonusOptions": {
     "ip": "10.10.11.45",

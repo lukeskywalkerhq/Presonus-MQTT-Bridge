@@ -283,7 +283,7 @@ export function subscribeMQTT(topic: string, messageCallback: (topic: string, me
 }
 
 export async function MQTTEvent(topic: string, message: Buffer){
-    if (topic.includes("set")){
+    if (topic.includes("command")){
         console.log("topic : " + topic + " Updated to : " + message);
 
         //todo convert topics to type channelselector
