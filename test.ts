@@ -1,4 +1,4 @@
-import {getConfiguration, getDiscoveryJSON} from "./discovery_json";
+import {getConfiguration, getDiscoveryJSON, getMeterDiscovory} from "./discovery_json";
 
 const testChannels = {
     LINE: 64,
@@ -41,7 +41,6 @@ const testOptions = {
             "talkback": true
         },
         "mixes": {
-            "master": true,
             "main": true,
             "mono": true,
             "aux": true,
@@ -61,7 +60,7 @@ const testOptions = {
 }
 
 const data = getConfiguration(testChannels, testOptions.presonusOptions);
-console.log(JSON.stringify(data, null, 2));
+console.log(JSON.stringify(data.meters, null, 2));
 
 for (const mix in data.mixes){
     const mixConfig = data.mixes[mix];
@@ -70,3 +69,5 @@ for (const mix in data.mixes){
        //console.log(JSON.stringify(json, null, 2));
     }
 }
+
+console.log(getMeterDiscovory(data.meters))

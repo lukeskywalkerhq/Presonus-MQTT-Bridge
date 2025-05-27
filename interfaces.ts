@@ -50,6 +50,18 @@ export interface HomeAssistantEntityConfig {
     command_topic?: string; // Common for controllable entities
 }
 
+export interface NumberSensorConfig extends HomeAssistantEntityConfig {
+    component: 'sensor';
+    device_class?: 'apparent_power' | 'aqi' | 'area' | 'atmospheric_pressure' | 'battery' | 'blood_glucose_concentration' | 'carbon_dioxide' | 'carbon_monoxide' | 'current' | 'data_rate' | 'data_size' | 'date' | 'distance' | 'duration' | 'energy' | 'energy_storage' | 'frequency' | 'gas' | 'humidity' | 'illuminance' | 'irradiance' | 'moisture' | 'monetary' | 'nitrogen_dioxide' | 'nitrogen_monoxide' | 'nitrous_oxide' | 'ozone' | 'ph' | 'pm1' | 'pm10' | 'pm25' | 'power_factor' | 'power' | 'precipitation' | 'precipitation_intensity' | 'pressure' | 'reactive_power' | 'signal_strength' | 'sound_pressure' | 'speed' | 'sulphur_dioxide' | 'temperature' | 'timestamp' | 'volatile_organic_compounds' | 'voltage' | 'volume' | 'volume_flow_rate' | 'weight' | 'wind_speed' | 'wind_bearing';
+    state_class?: 'measurement' | 'total' | 'total_increasing';
+    unit_of_measurement?: string;
+    state_topic: string;
+    value_template?: string;
+    expire_after?: number;
+    last_reset?: string;
+    suggested_display_precision?: number;
+}
+
 export interface RgbLightConfig extends HomeAssistantEntityConfig {
     component: 'light';
     command_topic: string; // Specific to lights

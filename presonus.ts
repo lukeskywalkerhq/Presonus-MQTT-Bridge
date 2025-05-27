@@ -190,7 +190,6 @@ export async function connectPresonus(options: any): Promise<boolean> {
         const configData = getConfiguration(channels, options);
 
         setConfiguration(configData)
-        console.dir(configData)
 
         for (const mix in configData.mixes){
             const mixConfig = configData.mixes[mix];
@@ -203,6 +202,19 @@ export async function connectPresonus(options: any): Promise<boolean> {
             }
 
             await updateSensor(`${mixConfig.name}`, "Online", false)
+        }
+
+        //publish data for masters
+        if (configData.masters.enabled){
+            const masterDiscovoryJSON = getDiscoveryJSON(configData.masters, 1)
+            await publishDiscoveryData(masterDiscovoryJSON)
+            await syncEntities(configData.masters, 1)
+            await updateSensor(`masters`, "Online", false)
+        }
+
+        //publish data for meters
+        if (configData.meters.enabled){
+
         }
 
         await updateSensor('system/status', 'Ready', false);

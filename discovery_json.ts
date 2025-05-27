@@ -134,6 +134,22 @@ function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityInde
     };
 }
 
+function getMeterJSON(name: any, entityIndex: number): any {
+    const baseURL = `presonus/meter/${name}/${entityIndex}`;
+
+    return {
+        unique_id: `meter_${name}_${entityIndex}`,
+        name: `meter ${name} ${entityIndex}`,
+        state_topic: baseURL + "/state",
+        device: {
+            name: `Meters`,
+            identifiers: ["meters"],
+            manufacturer: manufacturer,
+            model: "unknown"
+        }
+    }
+}
+
 function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
     const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
@@ -234,9 +250,9 @@ function getMeterConfig(channels: any, options: any): inputControl[] {
     for (const input in options.inputs){
         if (options.inputs[input] && channels[input.toUpperCase()] > 0){
             const newInput: inputControl = {
-                name: "input",
+                name: input,
                 size: channels[input.toUpperCase()],
-                type: input
+                type: "input"
             }
             meterConfig.push(newInput)
         }
@@ -245,9 +261,9 @@ function getMeterConfig(channels: any, options: any): inputControl[] {
     for (const mix in options.mixes){
         if (options.mixes[mix] && channels[mix.toUpperCase()] > 0){
             const newInput: inputControl = {
-                name: "mix",
+                name: mix,
                 size: channels[mix.toUpperCase()],
-                type: mix
+                type: "mix"
             }
             meterConfig.push(newInput)
         }
@@ -285,18 +301,29 @@ function getMasterConfig(channels: any, options: any): inputControl[] {
     return masterConfig
 }
 
+export function getMeterDiscovory(meterGroup: any){
+    let json[]
+    for (const meter in meterGroup.controls){
+        const currentInput = meterGroup.controls[meter]
+        for (let i = 0; i < currentInput.size; i++) {
+            console.log(`meter/${currentInput.name}/${i + 1}`)
+            json.add(getMeterJSON(currentInput.name, i + 1))
+        }
+    }
+}
+
 export function getConfiguration(channels: any, options: any): configuration {
     //todo missing return
     let config: configuration = {
         mixes: [],
         meters: { name: 'meters', enabled: options.meter, controls: getMeterConfig(channels, options)}, // Initialize meters
-        masters: { name: 'masters', size: 1, enabled: options.master, features: getMasterConfig(channels, options) } // Initialize masters
+        masters: { name: 'masters', size: 1, enabled: options.masters, features: getMasterConfig(channels, options) } // Initialize masters
     };
 
     // Process mixes based on options.mixes
     if (options.mixes) {
         for (const mixType in options.mixes) {
-            if (options.mixes[mixType] && channels[mixType.toUpperCase()] && mixType != "master" && mixType != "mono") {
+            if (options.mixes[mixType] && channels[mixType.toUpperCase()] && mixType != "master") {
                 config.mixes.push({
                     name: mixType,
                     size: channels[mixType.toUpperCase()],
