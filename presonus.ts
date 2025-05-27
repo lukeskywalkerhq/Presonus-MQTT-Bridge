@@ -11,7 +11,7 @@ import {
     updateSensor,
     updateMQTTSolo, publishDiscoveryData
 } from "./mqtt";
-import {getConfiguration, getDiscoveryJSON} from "./discovery_json";
+import {getConfiguration, getDiscoveryJSON, getMeterDiscovory} from "./discovery_json";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 import {syncEntities, syncTalkback, setConfiguration, syncMuteGroups} from "./sync";
 
@@ -214,7 +214,9 @@ export async function connectPresonus(options: any): Promise<boolean> {
 
         //publish data for meters
         if (configData.meters.enabled){
-
+            const meterDiscovoryJSON = getMeterDiscovory(configData.meters)
+            await publishDiscoveryData(meterDiscovoryJSON)
+            await updateSensor(`meters`, "Online", false)
         }
 
         await updateSensor('system/status', 'Ready', false);

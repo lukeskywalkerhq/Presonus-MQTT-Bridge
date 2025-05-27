@@ -302,14 +302,27 @@ function getMasterConfig(channels: any, options: any): inputControl[] {
 }
 
 export function getMeterDiscovory(meterGroup: any){
-    let json[]
+    let json: any[] = []
     for (const meter in meterGroup.controls){
         const currentInput = meterGroup.controls[meter]
         for (let i = 0; i < currentInput.size; i++) {
-            console.log(`meter/${currentInput.name}/${i + 1}`)
-            json.add(getMeterJSON(currentInput.name, i + 1))
+            //console.log(`meter/${currentInput.name}/${i + 1}`)
+            const jsonData = getMeterJSON(currentInput.name, i + 1)
+
+            const publish: publishLayout = {
+                type: "sensor",
+                mixName: `meter`,
+                input: currentInput.name,
+                commandType: currentInput.name,
+                index: i + 1,
+                config: jsonData
+            }
+
+            json.push(publish)
         }
     }
+
+    return json;
 }
 
 export function getConfiguration(channels: any, options: any): configuration {
