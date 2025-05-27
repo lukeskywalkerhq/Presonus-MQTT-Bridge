@@ -17,6 +17,10 @@ import {syncEntities, syncTalkback, setConfiguration, syncMuteGroups} from "./sy
 
 let clientPresonus: Client | null = null; // Initialize as null
 
+async function startMeters(){
+    console.log(clientPresonus.meterSubscribe())
+}
+
 export async function getPan(channelSelector: channelSelector) :Promise<number> {
     //todo link function missing from api
     return 50
@@ -217,6 +221,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
             const meterDiscovoryJSON = getMeterDiscovory(configData.meters)
             await publishDiscoveryData(meterDiscovoryJSON)
             await updateSensor(`meters`, "Online", false)
+            startMeters()
         }
 
         await updateSensor('system/status', 'Ready', false);
