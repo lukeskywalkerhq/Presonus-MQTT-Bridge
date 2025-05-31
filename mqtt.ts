@@ -177,7 +177,7 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
     }
 
     // Publish the entire batch with a single delay
-    const publishDelay = mqttOptions.publishDelay; // Adjust this delay as needed
+    const publishDelay: number = mqttOptions.publishDelay; // Adjust this delay as needed
     await new Promise(resolve => setTimeout(resolve, publishDelay));
 
     for (const item of batchPayload) {

@@ -18,7 +18,17 @@ import {syncEntities, syncTalkback, setConfiguration, syncMuteGroups} from "./sy
 let clientPresonus: Client | null = null; // Initialize as null
 
 async function startMeters(){
-    console.log(clientPresonus.meterSubscribe())
+    clientPresonus.meterSubscribe()
+
+    clientPresonus.on('meter', (meterData) => {
+
+        if (meterData.input) {
+             console.log("All Input Levels:", meterData.input);
+        }
+
+        // console.log("Main Mix Levels:", meterData.main);
+        // console.log("Aux Bus Levels:", meterData.aux_metering);
+    });
 }
 
 export async function getPan(channelSelector: channelSelector) :Promise<number> {
@@ -76,7 +86,7 @@ export async function updatePresonusColor(topic: string, state: string) {
 export async function updatePresonusPan(topic: string, state: string) {
     const selected: channelSelector = getChannelSelector(topic)
 
-    await clientPresonus.setPan(selected, state);
+    clientPresonus.setPan(selected, state);
 }
 
 export async function updatePresonusLink(topic: string, state: string){
@@ -172,7 +182,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
         host: options.ip,
         port: options.port
     }, {
-        autoReconnect: options.autoreconnect,
+        autoreconnect: options.autoreconnect,
         logLevel: process.env.DEBUG ? 'debug' : 'info'
     });
 
@@ -184,6 +194,14 @@ export async function connectPresonus(options: any): Promise<boolean> {
     clientPresonus.on('closed', function () {
         updateSensor('system/status', 'Disconnected', false);
         console.log('evt: Presonus Connection closed');
+
+        if (options.autoreconnect){
+            const delayMs = options.reconnectPeriod || 5000; // Default to 5000ms (5 seconds) if reconnectPeriod is not set
+            console.log(`Waiting ${delayMs} ms before trying again`);
+            setTimeout(() => {
+                connectPresonus(options);
+            }, delayMs);
+        }
     });
 
     clientPresonus.on('connected', async function () {
@@ -221,7 +239,8 @@ export async function connectPresonus(options: any): Promise<boolean> {
             const meterDiscovoryJSON = getMeterDiscovory(configData.meters)
             await publishDiscoveryData(meterDiscovoryJSON)
             await updateSensor(`meters`, "Online", false)
-            startMeters()
+            //todo fix meters
+            //startMeters()
         }
 
         await updateSensor('system/status', 'Ready', false);
@@ -231,9 +250,6 @@ export async function connectPresonus(options: any): Promise<boolean> {
         console.log(`Received ${code}:`);
         console.dir(data);
 
-        //todo add mutegroups
-        //todo change to (topic, state) format
-        //todo add talkback
         //todo update names???
 
 
@@ -274,4 +290,3 @@ export async function connectPresonus(options: any): Promise<boolean> {
 
     return true;
 }
-

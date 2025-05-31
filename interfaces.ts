@@ -1,16 +1,16 @@
 export interface publishLayout{
     type: string;
     mixName: string;
-    input: string;
+    input?: string;
     commandType: string;
-    index: number;
+    index?: number;
     config: HomeAssistantEntityConfig
 }
 
 export interface HomeAssistantEntityConfig {
     name?: string;
     unique_id: string;
-    state_topic?: string;
+    state_topic: string;
     availability_topic?: string;
     payload_available?: string;
     payload_not_available?: string;
