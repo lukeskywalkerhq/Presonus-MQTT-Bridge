@@ -8,6 +8,11 @@ export function setConfiguration(localConfiguration: any){
     configuration = localConfiguration
 }
 
+export function syncSystem(){
+    //getscene()
+
+}
+
 export async function syncTalkback(data: any){
     for (const mix in configuration.mixes){
         const mixConfig = configuration.mixes[mix];

@@ -69,7 +69,6 @@ function getOptions(): any {
 }
 
 async function connect(): Promise<void> {
-    //todo add masters
     options = getOptions();
 
     if (options) {

@@ -12,6 +12,7 @@ import {
     updateMQTTSolo, publishDiscoveryData
 } from "./mqtt";
 import {getConfiguration, getDiscoveryJSON, getMeterDiscovory} from "./discovery_json";
+import {getSystemJson} from "./system_json"
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 import {syncEntities, syncTalkback, setConfiguration, syncMuteGroups} from "./sync";
 
@@ -212,6 +213,11 @@ export async function connectPresonus(options: any): Promise<boolean> {
         const configData = getConfiguration(channels, options);
 
         setConfiguration(configData)
+
+        //publish data for system
+        const systemDiscovoryJSON = getSystemJson()
+        await publishDiscoveryData(systemDiscovoryJSON)
+        await updateSensor('system', 'Online', false);
 
         for (const mix in configData.mixes){
             const mixConfig = configData.mixes[mix];

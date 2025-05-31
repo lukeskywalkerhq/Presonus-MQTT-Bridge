@@ -37,7 +37,7 @@
     "username": "pdlighthousemedia",
     "password": "@Plaog16",
     "clientId": "13c2841c",
-    "publishDelay": 100,
+    "publishDelay": 5,
     "connectTimeout": 5000,
     "reconnectPeriod": 2000,
     "prefix": "mqtt"

@@ -161,29 +161,33 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
 
     for (const device of discoveryPayload) {
 
-        const config: string = device.config;
+        let node_id: string
+        let object_id: string
 
-        const node_id: string = `${device.mixName}_${device.input}`;
-        const object_id: string = `${device.commandType}_${device.index + 1}`;
+        if (device.mixName == "system"){
+            node_id = device.mixName;
+            object_id = device.commandType;
+        }else{
+            node_id= `${device.mixName}_${device.input}`;
+            object_id = `${device.commandType}_${device.index + 1}`;
+        }
 
-        let discoveryTopic = `${device.type}/${node_id}/${object_id}/config`;
+        let discoveryTopic: string = `${device.type}/${node_id}/${object_id}/config`;
         if (prefix) {
             discoveryTopic = `${prefix}/${discoveryTopic}`;
         }
 
-        const configPayload = JSON.stringify(config);
+        const configPayload: string = JSON.stringify(device.config);
 
         batchPayload.push({ topic: discoveryTopic, payload: configPayload });
     }
-
-    // Publish the entire batch with a single delay
-    const publishDelay: number = mqttOptions.publishDelay; // Adjust this delay as needed
-    await new Promise(resolve => setTimeout(resolve, publishDelay));
 
     for (const item of batchPayload) {
         try {
             await publishMQTT(item.topic, item.payload, { retain: true });
             console.log(`Published discovery config to ${item.topic}`);
+            const publishDelay: number = mqttOptions.publishDelay;
+            await new Promise(resolve => setTimeout(resolve, publishDelay));
         } catch (error) {
             console.error(`Error publishing to ${item.topic}:`, error);
             return error;
