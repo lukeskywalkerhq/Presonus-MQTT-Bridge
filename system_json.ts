@@ -1,5 +1,12 @@
 import {publishLayout} from "./interfaces"
 const manufacturer: string = "presonus"
+let header: string = "presonus/generic"
+let model: string = "generic"
+
+export function setSystemHeader(newModel: string){
+    header = `presonus/${newModel}`;
+    model = newModel;
+}
 
 function getLastAction(): publishLayout{
     return {
@@ -8,17 +15,17 @@ function getLastAction(): publishLayout{
         commandType: "last_action",
         config: {
             unique_id: "system/last_action",
-            state_topic: "presonus/system/last_action",
+            state_topic: `${header}/system/last_action`,
             name: "Last Action",
             icon: "mdi:history",
-            availability_topic: `presonus/system`,
+            availability_topic: `${header}/system`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
                 name: "System",
                 identifiers: ["system"],
                 manufacturer: manufacturer,
-                model: "My Model"
+                model: model
             }
         }
     };
@@ -31,17 +38,17 @@ function getScene(){
         commandType: "current_scene",
         config: {
             unique_id: "system/scene",
-            state_topic: "presonus/system/scene",
+            state_topic: `${header}/system/scene`,
             name: "Current Scene",
             icon: "mdi:movie-roll",
-            availability_topic: `presonus/system`,
+            availability_topic: `${header}/system`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
                 name: "System",
                 identifiers: ["system"],
                 manufacturer: manufacturer,
-                model: "My Model"
+                model: model
             }
         }
     };
@@ -54,17 +61,17 @@ function getProject(){
         commandType: "current_project",
         config: {
             unique_id: "system/project",
-            state_topic: "presonus/system/project",
+            state_topic: `${header}/system/project`,
             name: "Current Project",
             icon: "mdi:folder",
-            availability_topic: `presonus/system`,
+            availability_topic: `${header}/system`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
                 name: "System",
                 identifiers: ["system"],
                 manufacturer: manufacturer,
-                model: "My Model"
+                model: model
             }
         }
     };
@@ -77,17 +84,17 @@ function getSelectedChannel(){
         commandType: "selected_channel",
         config: {
             unique_id: "system/selected_channel",
-            state_topic: "presonus/system/selected_channel",
+            state_topic: `${header}/system/selected_channel`,
             name: "Selected Channel",
             icon: "mdi:target",
-            availability_topic: `presonus/system`,
+            availability_topic: `${header}/system`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
                 name: "System",
                 identifiers: ["system"],
                 manufacturer: manufacturer,
-                model: "My Model"
+                model: model
             }
         }
     };
@@ -100,14 +107,14 @@ function getStatus(){
         commandType: "status",
         config: {
             unique_id: "system/status",
-            state_topic: "presonus/system/status",
+            state_topic: `${header}/system/status`,
             name: "Status",
             icon: "mdi:information",
             device: {
                 name: "System",
                 identifiers: ["system"],
                 manufacturer: manufacturer,
-                model: "My Model"
+                model: model
             }
         }
     };
@@ -120,17 +127,17 @@ function getScreen(){
         commandType: "screen",
         config: {
             unique_id: "system/screen",
-            state_topic: "presonus/system/screen",
+            state_topic: `${header}/system/screen`,
             name: "Current Screen",
             icon: "mdi:overscan",
-            availability_topic: `presonus/system`,
+            availability_topic: `${header}/system`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
                 name: "System",
                 identifiers: ["system"],
                 manufacturer: manufacturer,
-                model: "My Model"
+                model: model
             }
         }
     };
@@ -143,17 +150,17 @@ function getPeak(){
         commandType: "peak",
         config: {
             unique_id: "system/peak",
-            state_topic: "presonus/system/peak",
+            state_topic: `${header}/system/peak`,
             name: "Last Channel Peak",
             icon: "mdi:alert",
-            availability_topic: `presonus/system`,
+            availability_topic: `${header}/system`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
                 name: "System",
                 identifiers: ["system"],
                 manufacturer: manufacturer,
-                model: "My Model"
+                model: model
             }
         }
     };

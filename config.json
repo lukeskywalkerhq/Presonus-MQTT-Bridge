@@ -1,9 +1,4 @@
 {
-  "system": {
-    "HomeAssistantAutoConfig": true,
-    "periodicResync": true,
-    "rapidConnect": true
-  },
   "presonusOptions": {
     "ip": "10.10.11.45",
     "port": 53000,
@@ -37,6 +32,7 @@
     "username": "pdlighthousemedia",
     "password": "@Plaog16",
     "clientId": "13c2841c",
+    "model": "StudioLive_64s",
     "publishDelay": 5,
     "connectTimeout": 5000,
     "reconnectPeriod": 2000,

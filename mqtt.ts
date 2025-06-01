@@ -1,4 +1,6 @@
 import * as mqtt from 'mqtt';
+import {setDiscoveryHeader} from './discovery_json';
+import {setSystemHeader} from './system_json'
 import {updatePresonusColor, updatePresonusFader, updatePresonusMute, updatePresonusSolo, updatePresonusPan, updatePresonusLink} from "./presonus";
 
 let mqttClient: mqtt.MqttClient | null = null;
@@ -206,6 +208,9 @@ export async function connectMQTT(mqttConfig: any): Promise<void> {
 
     mqttOptions = mqttConfig;
 
+    setDiscoveryHeader(mqttOptions.model)
+    setSystemHeader(mqttOptions.model)
+
     const options: mqtt.IClientOptions = {
         clientId: mqttConfig.clientId || `mqttjs_${Math.random().toString(16).substr(2, 8)}`,
         username: mqttConfig.username,
@@ -237,7 +242,7 @@ export async function connectMQTT(mqttConfig: any): Promise<void> {
 }
 
 export async function updateSensor(location: string, message: string, retain: boolean = false): Promise<void> {
-    const topic = "presonus/" + location;
+    const topic = `presonus/${mqttOptions.model}/${location}`;
     await publishMQTT(topic, message, retain);
     console.log(`Published to ${topic}: ${message} (retain: ${retain})\n`);
 }

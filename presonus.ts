@@ -193,6 +193,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
     });
 
     clientPresonus.on('closed', function () {
+        updateSensor('avaliable', 'Offline', false);
         updateSensor('system/status', 'Disconnected', false);
         console.log('evt: Presonus Connection closed');
 
@@ -217,7 +218,6 @@ export async function connectPresonus(options: any): Promise<boolean> {
         //publish data for system
         const systemDiscovoryJSON = getSystemJson()
         await publishDiscoveryData(systemDiscovoryJSON)
-        await updateSensor('system', 'Online', false);
 
         for (const mix in configData.mixes){
             const mixConfig = configData.mixes[mix];
@@ -228,8 +228,6 @@ export async function connectPresonus(options: any): Promise<boolean> {
                     await syncEntities(mixConfig, mixIndex + 1)
                 }
             }
-
-            await updateSensor(`${mixConfig.name}`, "Online", false)
         }
 
         //publish data for masters
@@ -237,19 +235,18 @@ export async function connectPresonus(options: any): Promise<boolean> {
             const masterDiscovoryJSON = getDiscoveryJSON(configData.masters, 1)
             await publishDiscoveryData(masterDiscovoryJSON)
             await syncEntities(configData.masters, 1)
-            await updateSensor(`masters`, "Online", false)
         }
 
         //publish data for meters
         if (configData.meters.enabled){
             const meterDiscovoryJSON = getMeterDiscovory(configData.meters)
             await publishDiscoveryData(meterDiscovoryJSON)
-            await updateSensor(`meters`, "Online", false)
             //todo fix meters
             //startMeters()
         }
 
         await updateSensor('system/status', 'Ready', false);
+        await updateSensor('avaliable', 'Online', false);
     });
 
     clientPresonus.on('data', function ({ code, data }) {

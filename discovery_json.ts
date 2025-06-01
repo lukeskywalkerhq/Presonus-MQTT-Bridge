@@ -1,10 +1,17 @@
 import {getInputFeatures, getMixFeatures, getMixInputs} from "./dataTypes";
-import {publishLayout, configuration, meterGroup, mixGroup, inputControl} from "./interfaces";
+import {publishLayout, configuration, mixGroup, inputControl} from "./interfaces";
 
-const manufacturer = "Presonus"
+const manufacturer: string = "Presonus"
+let header: string = "presonus/generic"
+let model: string = "generic"
+
+export function setDiscoveryHeader(newModel: string){
+    header = `presonus/${newModel}`;
+    model = newModel;
+}
 
 function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
+    const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
             unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -12,7 +19,7 @@ function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex
             component: 'number',
             command_topic: baseURL + "/command",
             state_topic: baseURL + "/state",
-            availability_topic: `presonus/${mixName}`,
+            availability_topic: `${header}/available`,
             payload_available: "Online",
             payload_not_available: "Offline",
             min: 0,
@@ -24,20 +31,20 @@ function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex
                 name: `${mixName} ${mixIndex}`,
                 identifiers: [`${mixName}_${mixIndex}`],
                 manufacturer: manufacturer,
-                model: "unknown"
+                model: model
             }
         }
 }
 
 function getLightJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
+    const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
         name: `${mixName} ${mixIndex} ${feature.name} ${entityIndex} ${feature.type}`,
         command_topic: baseURL + "/command/power",
         state_topic: baseURL + "/state/power",
-        availability_topic: `presonus/${mixName}`,
+        availability_topic: `${header}/available`,
         payload_available: "Online",
         payload_not_available: "Offline",
         rgb_state_topic: `${baseURL}/state/rgb`,
@@ -49,13 +56,13 @@ function getLightJSON(mixName: string, mixIndex: number, feature: any, entityInd
             name: `${mixName} ${mixIndex}`,
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
-            model: "unknown"
+            model: model
         }
     };
 }
 
 function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
+    const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -63,7 +70,7 @@ function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityInd
         component: 'number',
         command_topic: baseURL + "/command",
         state_topic: baseURL + "/state",
-        availability_topic: `presonus/${mixName}`,
+        availability_topic: `${header}/available`,
         payload_available: "Online",
         payload_not_available: "Offline",
         min: 0,
@@ -75,13 +82,13 @@ function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityInd
             name: `${mixName} ${mixIndex}`,
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
-            model: "unknown"
+            model: model
         }
     };
 }
 
 function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
+    const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -90,7 +97,7 @@ function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityInde
         device_class: "switch",
         command_topic: baseURL + "/command",
         state_topic: baseURL + "/state",
-        availability_topic: `presonus/${mixName}`,
+        availability_topic: `${header}/avaliable`,
         payload_available: "Online",
         payload_not_available: "Offline",
         payload_on: "linked",
@@ -102,13 +109,13 @@ function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityInde
             name: `${mixName} ${mixIndex}`,
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
-            model: "unknown"
+            model: model
         }
     };
 }
 
 function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
+    const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -117,7 +124,7 @@ function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityInde
         device_class: "switch",
         command_topic: baseURL + "/command",
         state_topic: baseURL + "/state",
-        availability_topic: `presonus/${mixName}`,
+        availability_topic: `${header}/avaliable`,
         payload_available: "Online",
         payload_not_available: "Offline",
         payload_on: "soloed",
@@ -129,29 +136,32 @@ function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityInde
             name: `${mixName} ${mixIndex}`,
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
-            model: "unknown"
+            model: model
         }
     };
 }
 
 function getMeterJSON(name: any, entityIndex: number): any {
-    const baseURL = `presonus/meter/${name}/${entityIndex}`;
+    const baseURL = `${header}/meter/${name}/${entityIndex}`;
 
     return {
         unique_id: `meter_${name}_${entityIndex}`,
         name: `meter ${name} ${entityIndex}`,
         state_topic: baseURL + "/state",
+        availability_topic: `${header}/avaliable`,
+        payload_available: "Online",
+        payload_not_available: "Offline",
         device: {
             name: `Meters`,
             identifiers: ["meters"],
             manufacturer: manufacturer,
-            model: "unknown"
+            model: model
         }
     }
 }
 
 function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
-    const baseURL = `presonus/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
+    const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
         unique_id: `${mixName}_${mixIndex}_${feature.name}_${entityIndex}_${feature.type}`,
@@ -160,7 +170,7 @@ function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityInde
         device_class: "switch",
         command_topic: baseURL + "/command",
         state_topic: baseURL + "/state",
-        availability_topic: `presonus/${mixName}`,
+        availability_topic: `${header}/avaliable`,
         payload_available: "Online",
         payload_not_available: "Offline",
         payload_on: "muted",
@@ -172,7 +182,7 @@ function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityInde
             name: `${mixName} ${mixIndex}`,
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
-            model: "unknown"
+            model: model
         }
     };
 }
