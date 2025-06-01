@@ -223,7 +223,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
             const mixConfig = configData.mixes[mix];
             for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
                 if (mixConfig.features.length > 0){
-                    const publishgroup: any[] = getDiscoveryJSON(mixConfig, mixIndex + 1);
+                    const publishgroup: any[] = getDiscoveryJSON(mixConfig, mixIndex + 1, mixConfig.size);
                     await publishDiscoveryData(publishgroup)
                     await syncEntities(mixConfig, mixIndex + 1)
                 }
@@ -232,7 +232,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
 
         //publish data for masters
         if (configData.masters.enabled){
-            const masterDiscovoryJSON = getDiscoveryJSON(configData.masters, 1)
+            const masterDiscovoryJSON = getDiscoveryJSON(configData.masters, 1, 1)
             await publishDiscoveryData(masterDiscovoryJSON)
             await syncEntities(configData.masters, 1)
         }

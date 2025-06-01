@@ -5,7 +5,6 @@ import {updatePresonusColor, updatePresonusFader, updatePresonusMute, updatePres
 
 let mqttClient: mqtt.MqttClient | null = null;
 
-let prefix:string = null;
 let mqttOptions = null;
 
 export async function updateMQTTColor(data: any){
@@ -175,8 +174,8 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
         }
 
         let discoveryTopic: string = `${device.type}/${node_id}/${object_id}/config`;
-        if (prefix) {
-            discoveryTopic = `${prefix}/${discoveryTopic}`;
+        if (mqttOptions.prefix && mqttOptions.prefix != "none") {
+            discoveryTopic = `${mqttOptions.prefix}/${discoveryTopic}`;
         }
 
         const configPayload: string = JSON.stringify(device.config);
@@ -283,6 +282,7 @@ export function subscribeMQTT(topic: string, messageCallback: (topic: string, me
 }
 
 export async function MQTTEvent(topic: string, message: Buffer){
+    //todo remove header from topic
     if (topic.includes("command")){
         console.log("topic : " + topic + " Updated to : " + message);
 

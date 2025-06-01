@@ -10,7 +10,16 @@ export function setDiscoveryHeader(newModel: string){
     model = newModel;
 }
 
-function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+function getMixFreindlyName(name: string, index: number, size: number): string {
+    if (size == 1){
+        return name;
+    } else if (size < 1){
+        const paddedIndex: string = String(index).padStart(2, '0'); // Pad with leading zero if needed
+        return `${name} ${paddedIndex}`;
+    }
+}
+
+function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number, mixSize: number): any {
     const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
@@ -28,7 +37,7 @@ function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex
             unit_of_measure: "°",
             icon: "mdi:knob",
             device: {
-                name: `${mixName} ${mixIndex}`,
+                name: getMixFreindlyName(mixName, mixIndex, mixSize),
                 identifiers: [`${mixName}_${mixIndex}`],
                 manufacturer: manufacturer,
                 model: model
@@ -36,7 +45,7 @@ function getPanJSON(mixName: string, mixIndex: number, feature: any, entityIndex
         }
 }
 
-function getLightJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+function getLightJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number, mixSize: number): any {
     const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
@@ -53,7 +62,7 @@ function getLightJSON(mixName: string, mixIndex: number, feature: any, entityInd
         supported_color_modes: ["rgb"],
         icon: "mdi:equalizer",
         device: {
-            name: `${mixName} ${mixIndex}`,
+            name: getMixFreindlyName(mixName, mixIndex, mixSize),
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
             model: model
@@ -61,7 +70,7 @@ function getLightJSON(mixName: string, mixIndex: number, feature: any, entityInd
     };
 }
 
-function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number, mixSize: number): any {
     const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
@@ -79,7 +88,7 @@ function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityInd
         unit_of_measure: "%",
         icon: "mdi:knob",
         device: {
-            name: `${mixName} ${mixIndex}`,
+            name: getMixFreindlyName(mixName, mixIndex, mixSize),
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
             model: model
@@ -87,7 +96,7 @@ function getFaderJSON(mixName: string, mixIndex: number, feature: any, entityInd
     };
 }
 
-function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number, mixSize: number): any {
     const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
@@ -106,7 +115,7 @@ function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityInde
         state_off: "Unlinked",
         icon: "mdi:link-variant",
         device: {
-            name: `${mixName} ${mixIndex}`,
+            name: getMixFreindlyName(mixName, mixIndex, mixSize),
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
             model: model
@@ -114,7 +123,7 @@ function getLinkJSON(mixName: string, mixIndex: number, feature: any, entityInde
     };
 }
 
-function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number, mixSize: number): any {
     const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
@@ -133,7 +142,7 @@ function getSoloJSON(mixName: string, mixIndex: number, feature: any, entityInde
         state_off: "Unsoloed",
         icon: "mdi:speaker",
         device: {
-            name: `${mixName} ${mixIndex}`,
+            name: getMixFreindlyName(mixName, mixIndex, mixSize),
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
             model: model
@@ -160,7 +169,7 @@ function getMeterJSON(name: any, entityIndex: number): any {
     }
 }
 
-function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number): any {
+function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityIndex: number, mixSize: number): any {
     const baseURL = `${header}/${mixName}/${mixIndex}/${feature.name}/${entityIndex}/${feature.type}`;
 
     return {
@@ -179,7 +188,7 @@ function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityInde
         state_off: "Unmuted",
         icon: "mdi:volume-mute",
         device: {
-            name: `${mixName} ${mixIndex}`,
+            name: getMixFreindlyName(mixName, mixIndex, mixSize),
             identifiers: [`${mixName}_${mixIndex}`],
             manufacturer: manufacturer,
             model: model
@@ -187,7 +196,7 @@ function getMuteJSON(mixName: string, mixIndex: number, feature: any, entityInde
     };
 }
 
-export function getDiscoveryJSON(config: mixGroup, index: number): any {
+export function getDiscoveryJSON(config: mixGroup, index: number, mixsize: number): any {
 
     const mixName: string = config.name;
     const mixIndex: number = index;
@@ -201,33 +210,33 @@ export function getDiscoveryJSON(config: mixGroup, index: number): any {
             let commandType: string
 
             if(feature.type == "mute"){
-                data = getMuteJSON(mixName, mixIndex, feature, inputIndex + 1)
+                data = getMuteJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize)
                 type = "switch"
                 commandType = "mute"
             }
             else if (feature.type == "fader"){
-                data = getFaderJSON(mixName, mixIndex, feature, inputIndex + 1)
+                data = getFaderJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize)
                 type = "number"
                 commandType = "fader"
             }
             else if (feature.type == "solo"){
-                data = getSoloJSON(mixName, mixIndex, feature, inputIndex + 1)
+                data = getSoloJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize)
                 type = "switch"
                 commandType = "solo"
             }
             else if (feature.type == "pan"){
                 //todo find limits
-                data = getPanJSON(mixName, mixIndex, feature, inputIndex + 1)
+                data = getPanJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize)
                 type = "number"
                 commandType = "pan"
             }
             else if (feature.type == "link"){
-                data = getLinkJSON(mixName, mixIndex, feature, inputIndex + 1)
+                data = getLinkJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize)
                 type = "switch"
                 commandType = "link"
             }
             else if (feature.type == "color"){
-                data = getLightJSON(mixName, mixIndex, feature, inputIndex + 1)
+                data = getLightJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize)
                 type = "light"
                 commandType = "color"
             }
