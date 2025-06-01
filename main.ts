@@ -5,7 +5,11 @@ import * as path from 'path';
 import {MQTTEvent, subscribeMQTT} from "./mqtt";
 
 let options: any = null; // Declare options in main.ts
+let configuration: any
 
+export function setMainConfiguration(newConfiguration: any): void {
+    configuration = newConfiguration;
+}
 
 async function downloadLatestRepo(repoUrl: string, destinationPath: string): Promise<void> {
     try {
@@ -68,6 +72,10 @@ function getOptions(): any {
     return readConfigFile("config.json");
 }
 
+async function configure(): Promise<void>{
+
+}
+
 async function connect(): Promise<void> {
     options = getOptions();
 
@@ -80,13 +88,15 @@ async function connect(): Promise<void> {
         const { connectPresonus } = await import("./presonus");
         await connectPresonus(options.presonusOptions); // Pass the loaded option
 
+        await configure()
+
         const topic = `presonus/${options.mqttOptions.model}/#`;
         subscribeMQTT(topic, MQTTEvent);
     } else {
         console.error("Failed to load configuration");
     }
 
-    const { updateSensor } = await import("./mqtt"); // Import again if needed outside the if block
+    //const { updateSensor } = await import("./mqtt"); // Import again if needed outside the if block
 }
 
 function main() {
