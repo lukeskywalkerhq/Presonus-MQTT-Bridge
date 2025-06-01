@@ -18,7 +18,7 @@ function getLastAction(): publishLayout{
             state_topic: `${header}/system/last_action`,
             name: "Last Action",
             icon: "mdi:history",
-            availability_topic: `${header}/system`,
+            availability_topic: `${header}/available`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
@@ -41,7 +41,7 @@ function getScene(){
             state_topic: `${header}/system/scene`,
             name: "Current Scene",
             icon: "mdi:movie-roll",
-            availability_topic: `${header}/system`,
+            availability_topic: `${header}/available`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
@@ -64,7 +64,7 @@ function getProject(){
             state_topic: `${header}/system/project`,
             name: "Current Project",
             icon: "mdi:folder",
-            availability_topic: `${header}/system`,
+            availability_topic: `${header}/available`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
@@ -87,7 +87,7 @@ function getSelectedChannel(){
             state_topic: `${header}/system/selected_channel`,
             name: "Selected Channel",
             icon: "mdi:target",
-            availability_topic: `${header}/system`,
+            availability_topic: `${header}/available`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
@@ -130,7 +130,7 @@ function getScreen(){
             state_topic: `${header}/system/screen`,
             name: "Current Screen",
             icon: "mdi:overscan",
-            availability_topic: `${header}/system`,
+            availability_topic: `${header}/available`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {
@@ -153,7 +153,7 @@ function getPeak(){
             state_topic: `${header}/system/peak`,
             name: "Last Channel Peak",
             icon: "mdi:alert",
-            availability_topic: `${header}/system`,
+            availability_topic: `${header}/available`,
             payload_available: "Online",
             payload_not_available: "Offline",
             device: {

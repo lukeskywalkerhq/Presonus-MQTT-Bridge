@@ -193,7 +193,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
     });
 
     clientPresonus.on('closed', function () {
-        updateSensor('avaliable', 'Offline', false);
+        updateSensor('avaliable', 'Offline', true);
         updateSensor('system/status', 'Disconnected', false);
         console.log('evt: Presonus Connection closed');
 
