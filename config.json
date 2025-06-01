@@ -33,7 +33,7 @@
     "password": "@Plaog16",
     "clientId": "13c2841c",
     "model": "StudioLive_64s",
-    "publishDelay": 5,
+    "publishDelay": 20,
     "connectTimeout": 5000,
     "reconnectPeriod": 2000,
     "prefix": "mqtt"
