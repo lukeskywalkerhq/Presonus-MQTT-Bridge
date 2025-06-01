@@ -183,12 +183,13 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
         batchPayload.push({ topic: discoveryTopic, payload: configPayload });
     }
 
+    const publishDelay: number = mqttOptions.publishDelay;
+    await new Promise(resolve => setTimeout(resolve, publishDelay));
+
     for (const item of batchPayload) {
         try {
             await publishMQTT(item.topic, item.payload, { retain: true });
             console.log(`Published discovery config to ${item.topic}`);
-            const publishDelay: number = mqttOptions.publishDelay;
-            await new Promise(resolve => setTimeout(resolve, publishDelay));
         } catch (error) {
             console.error(`Error publishing to ${item.topic}:`, error);
             return error;

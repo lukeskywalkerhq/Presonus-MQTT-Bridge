@@ -32,8 +32,8 @@
     "username": "pdlighthousemedia",
     "password": "@Plaog16",
     "clientId": "13c2841c",
-    "model": "StudioLive_64s",
-    "publishDelay": 20,
+    "model": "studiolive_64s",
+    "publishDelay": 1000,
     "connectTimeout": 5000,
     "reconnectPeriod": 2000,
     "prefix": "mqtt"

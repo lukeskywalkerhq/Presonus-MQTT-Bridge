@@ -246,7 +246,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
         }
 
         await updateSensor('system/status', 'Ready', false);
-        await updateSensor('avaliable', 'Online', false);
+        await updateSensor('available', 'Online', false);
     });
 
     clientPresonus.on('data', function ({ code, data }) {

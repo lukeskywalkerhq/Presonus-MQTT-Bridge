@@ -74,13 +74,13 @@ async function connect(): Promise<void> {
     if (options) {
         const { connectMQTT, updateSensor } = await import("./mqtt");
         await connectMQTT(options.mqttOptions);
-        await updateSensor('avaliable', 'Offline', false);
+        await updateSensor('available', 'Offline', false);
         await updateSensor('system/status', 'Connecting', false);
 
         const { connectPresonus } = await import("./presonus");
         await connectPresonus(options.presonusOptions); // Pass the loaded option
 
-        const topic = "presonus/#";
+        const topic = `presonus/${options.mqttOptions.model}/#`;
         subscribeMQTT(topic, MQTTEvent);
     } else {
         console.error("Failed to load configuration");
