@@ -254,6 +254,9 @@ export async function connectPresonus(options: any): Promise<boolean> {
         console.dir(data);
 
         //todo update names???
+        //disconnect on code: PV name softpower/softPowerProgress
+        //value: Buffer(4) [Uint8Array] [0,0,128,63]
+        // index 2 goes from 0 to 128 where 128 is fully ready to shutdown
 
 
         if (code == "PV" && data.name.includes("select")){

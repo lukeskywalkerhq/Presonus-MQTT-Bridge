@@ -8,10 +8,7 @@ export function setConfiguration(localConfiguration: any){
     configuration = localConfiguration
 }
 
-export function syncSystem(){
-    //getscene()
-
-}
+export function
 
 export async function syncTalkback(data: any){
     for (const mix in configuration.mixes){
