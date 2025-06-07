@@ -14,7 +14,8 @@ import {
 import {getConfiguration, getDiscoveryJSON, getMeterDiscovory} from "./discovery_json";
 import {getSystemJson} from "./system_json"
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
-import {syncEntities, syncTalkback, setConfiguration, syncMuteGroups} from "./sync";
+import {syncEntities, syncTalkback, setSyncConfiguration, syncMuteGroups} from "./sync";
+import {setMainConfiguration} from "./main"
 
 let clientPresonus: Client | null = null; // Initialize as null
 
@@ -207,24 +208,19 @@ export async function connectPresonus(options: any): Promise<boolean> {
     });
 
     clientPresonus.on('connected', async function () {
-        await updateSensor('system/status', 'Connected', false);
-        const channels = clientPresonus.channelCounts;
+        await updateSensor('available', 'Offline', false);
+        await updateSensor('system/status', 'Syncing', false);
 
-        await updateSensor('system/status', 'Configuring', false);
+        const channels = clientPresonus.channelCounts;
         const configData = getConfiguration(channels, options);
 
-        setConfiguration(configData)
-
-        //publish data for system
-        const systemDiscovoryJSON = getSystemJson()
-        await publishDiscoveryData(systemDiscovoryJSON)
+        setSyncConfiguration(configData)
+        setMainConfiguration(configData)
 
         for (const mix in configData.mixes){
             const mixConfig = configData.mixes[mix];
             for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
                 if (mixConfig.features.length > 0){
-                    const publishgroup: any[] = getDiscoveryJSON(mixConfig, mixIndex + 1, mixConfig.size);
-                    await publishDiscoveryData(publishgroup)
                     await syncEntities(mixConfig, mixIndex + 1)
                 }
             }
@@ -232,18 +228,10 @@ export async function connectPresonus(options: any): Promise<boolean> {
 
         //publish data for masters
         if (configData.masters.enabled){
-            const masterDiscovoryJSON = getDiscoveryJSON(configData.masters, 1, 1)
-            await publishDiscoveryData(masterDiscovoryJSON)
             await syncEntities(configData.masters, 1)
         }
 
-        //publish data for meters
-        if (configData.meters.enabled){
-            const meterDiscovoryJSON = getMeterDiscovory(configData.meters)
-            await publishDiscoveryData(meterDiscovoryJSON)
-            //todo fix meters
-            //startMeters()
-        }
+        //startMeters()
 
         await updateSensor('system/status', 'Ready', false);
         await updateSensor('available', 'Online', false);
@@ -254,10 +242,6 @@ export async function connectPresonus(options: any): Promise<boolean> {
         console.dir(data);
 
         //TODO update names???
-        //disconnect on code: PV name softpower/softPowerProgress
-        //value: Buffer(4) [Uint8Array] [0,0,128,63]
-        // index 2 goes from 0 to 128 where 128 is fully ready to shutdown
-
 
         if (code == "PV" && data.name.includes("select")){
             updateMQTTSelect(data);

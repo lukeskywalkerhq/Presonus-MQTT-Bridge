@@ -1,3 +1,8 @@
+export interface mainLayout {
+    id: string;
+    value: string;
+}
+
 export interface publishLayout{
     type: string;
     mixName: string;

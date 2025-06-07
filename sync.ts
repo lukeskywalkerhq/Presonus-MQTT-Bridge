@@ -4,11 +4,13 @@ import {updateSensor} from "./mqtt";
 
 let configuration: any = null
 
-export function setConfiguration(localConfiguration: any){
+export function setSyncConfiguration(localConfiguration: any){
     configuration = localConfiguration
 }
 
-export function
+export async function updateMainFaders(dataList: any){
+
+}
 
 export async function syncTalkback(data: any){
     for (const mix in configuration.mixes){
