@@ -220,7 +220,7 @@ export async function connectMQTT(mqttConfig: any): Promise<void> {
         reconnectPeriod: mqttConfig.reconnectPeriod || 1000,
     };
 
-    prefix = mqttConfig.prefix;
+    //prefix = mqttConfig.prefix;
 
     return new Promise((resolve, reject) => {
         mqttClient = mqtt.connect(mqttConfig.url, options);

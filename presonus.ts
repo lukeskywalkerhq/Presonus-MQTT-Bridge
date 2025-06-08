@@ -14,7 +14,7 @@ import {
 import {getConfiguration, getDiscoveryJSON, getMeterDiscovory} from "./discovery_json";
 import {getSystemJson} from "./system_json"
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
-import {syncEntities, syncTalkback, setSyncConfiguration, syncMuteGroups} from "./sync";
+import {syncEntities, syncTalkback, setSyncConfiguration, syncMuteGroups, updateMainFaders, clearLocalMain} from "./sync";
 import {setMainConfiguration} from "./main"
 
 let clientPresonus: Client | null = null; // Initialize as null
@@ -196,6 +196,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
     clientPresonus.on('closed', function () {
         updateSensor('avaliable', 'Offline', true);
         updateSensor('system/status', 'Disconnected', false);
+        clearLocalMain()
         console.log('evt: Presonus Connection closed');
 
         if (options.autoreconnect){
@@ -216,6 +217,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
 
         setSyncConfiguration(configData)
         setMainConfiguration(configData)
+
 
         for (const mix in configData.mixes){
             const mixConfig = configData.mixes[mix];
@@ -264,7 +266,8 @@ export async function connectPresonus(options: any): Promise<boolean> {
         } else if (code == "PC" && data.name.includes("color")){
             updateMQTTColor(data);
         } else if (code == "MS"){
-            updateMQTTMainFader(data);
+            //updateMQTTMainFader(data);
+            updateMainFaders(data);
         } else {
             updateMQTTLastAction(data);
         }

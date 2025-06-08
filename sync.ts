@@ -1,15 +1,74 @@
 import {getLink, getMute, getSolo, getLevel, getPan, getColor} from "./presonus";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 import {updateSensor} from "./mqtt";
+import {mainLayout} from "./interfaces"
+import {updateMQTTMainFader} from "./mqtt"
 
 let configuration: any = null
+let localMain: any
 
 export function setSyncConfiguration(localConfiguration: any){
     configuration = localConfiguration
 }
 
-export async function updateMainFaders(dataList: any){
+export function clearLocalMain(){
+    localMain = null
+}
 
+export async function updateMainFaders(dataList: any){
+    if(!localMain){
+        localMain = dataList
+        updateMQTTMainFader(dataList)
+        //todo add function to update Masters
+        //todo fix update for init main
+    }
+    else{
+        for (const ch in dataList.LINE){
+            if (dataList.LINE[ch] != localMain.LINE[ch]){
+                localMain.LINE[ch] = dataList.LINE[ch]
+            }
+        }
+        for (const ch in dataList.RETURN){
+            if (dataList.RETURN[ch] != localMain.RETURN[ch]){
+                localMain.RETURN[ch] = dataList.RETURN[ch]
+            }
+        }
+        for (const ch in dataList.FXRETURN){
+            if (dataList.FXRETURN[ch] != localMain.FXRETURN[ch]){
+                localMain.FXRETURN[ch] = dataList.FXRETURN[ch]
+            }
+        }
+        for (const ch in dataList.TALKBACK){
+            if (dataList.TALKBACK[ch] != localMain.TALKBACK[ch]){
+                localMain.TALKBACK[ch] = dataList.TALKBACK[ch]
+            }
+        }
+        for (const ch in dataList.AUX){
+            if (dataList.AUX[ch] != localMain.AUX[ch]){
+                localMain.AUX[ch] = dataList.AUX[ch]
+            }
+        }
+        for (const ch in dataList.FX){
+            if (dataList.FX[ch] != localMain.FX[ch]){
+                localMain.FX[ch] = dataList.FX[ch]
+            }
+        }
+        for (const ch in dataList.MAIN){
+            if (dataList.MAIN[ch] != localMain.MAIN[ch]){
+                localMain.MAIN[ch] = dataList.MAIN[ch]
+            }
+        }
+        for (const ch in dataList.MONO){
+            if (dataList.MONO[ch] != localMain.MONO[ch]){
+                localMain.MONO[ch] = dataList.MONO[ch]
+            }
+        }
+        for (const ch in dataList.MASTER){
+            if (dataList.MASTER[ch] != localMain.MASTER[ch]){
+                localMain.MASTER[ch] = dataList.MASTER[ch]
+            }
+        }
+    }
 }
 
 export async function syncTalkback(data: any){

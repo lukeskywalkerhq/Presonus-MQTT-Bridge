@@ -76,6 +76,11 @@ function getOptions(): any {
 }
 
 async function configure(): Promise<void>{
+    while (!configuration){
+        console.log("waiting for config file");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
     const systemDiscovoryJSON = getSystemJson()
     await publishDiscoveryData(systemDiscovoryJSON)
 
@@ -85,7 +90,6 @@ async function configure(): Promise<void>{
             if (mixConfig.features.length > 0){
                 const publishgroup: any[] = getDiscoveryJSON(mixConfig, mixIndex + 1, mixConfig.size);
                 await publishDiscoveryData(publishgroup)
-                //await syncEntities(mixConfig, mixIndex + 1)
             }
         }
     }
@@ -94,15 +98,12 @@ async function configure(): Promise<void>{
     if (configuration.masters.enabled){
         const masterDiscovoryJSON = getDiscoveryJSON(configuration.masters, 1, 1)
         await publishDiscoveryData(masterDiscovoryJSON)
-        //await syncEntities(configData.masters, 1)
     }
 
     //publish data for meters
     if (configuration.meters.enabled){
         const meterDiscovoryJSON = getMeterDiscovory(configuration.meters)
         await publishDiscoveryData(meterDiscovoryJSON)
-        //todo fix meters
-        //startMeters()
     }
 }
 
@@ -116,7 +117,6 @@ async function connect(): Promise<void> {
         await updateSensor('system/status', 'Connecting', false);
         try {
             await connectPresonus(options.presonusOptions)
-                .then(() => configure())
                 .catch((error) => console.error("Can't Connect to Presonus: ", error));
         } catch (error) {
             console.error("Can't Connect: ", error);
@@ -124,6 +124,7 @@ async function connect(): Promise<void> {
 
         await updateSensor('available', 'Offline', false);
         await updateSensor('system/status', 'Configuring', false);
+        await configure()
 
         const topic = `presonus/${options.mqttOptions.model}/#`;
         subscribeMQTT(topic, MQTTEvent);
