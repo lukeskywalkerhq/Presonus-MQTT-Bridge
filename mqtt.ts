@@ -68,18 +68,23 @@ export async function updateMQTTScreen(data: any){
     await updateSensor(topic, name, false)
 }
 
-export async function updateMQTTMainFader(data: any) {
-    //todo add checks
-    const mixlist = ["line", "return", "fxreturn", "talkback", "aux", "fx", "main", "mono", "master"];
+export function updateMQTTFaderAll(){
 
-    for (let i = 0; i < mixlist.length; i++) {
-        const type = mixlist[i].toUpperCase(); // Assuming keys in 'data' are uppercase
+}
+
+export async function updateMQTTMainAndMasterFader(data: any) {
+    //todo add checks
+    const mixlist: string[] = ["line", "return", "fxreturn", "talkback", "aux", "fx", "main", "mono", "master"];
+
+    for (let i: number = 0; i < mixlist.length; i++) {
+        const type: string = mixlist[i].toUpperCase(); // Assuming keys in 'data' are uppercase
 
         if (data.hasOwnProperty(type)) {
             const channels = data[type];
 
             if (channels && Array.isArray(channels)) {
-                for (let ch = 1; ch <= channels.length; ch++) {
+                for (let ch: number = 1; ch <= channels.length; ch++) {
+                    //todo switch from main to master depending on channel type
                     const topic = `main/1/${mixlist[i]}/${ch}/fader/state`;
                     const value = channels[ch - 1].toFixed(1);
                     await updateSensor(topic, value, false);

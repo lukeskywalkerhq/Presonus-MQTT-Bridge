@@ -2,7 +2,7 @@ import {getLink, getMute, getSolo, getLevel, getPan, getColor} from "./presonus"
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
 import {updateSensor} from "./mqtt";
 import {mainLayout} from "./interfaces"
-import {updateMQTTMainFader} from "./mqtt"
+import {updateMQTTMainAndMasterFader} from "./mqtt"
 
 let configuration: any = null
 let localMain: any
@@ -18,7 +18,7 @@ export function clearLocalMain(){
 export async function updateMainFaders(dataList: any){
     if(!localMain){
         localMain = dataList
-        updateMQTTMainFader(dataList)
+        updateMQTTMainAndMasterFader(dataList)
         //todo add function to update Masters
         //todo fix update for init main
     }
