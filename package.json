@@ -1,8 +1,8 @@
 {
-  "name": "presonus-studiolive-api",
-  "version": "1.5.0",
-  "description": "Unofficial PreSonus StudioLive III Network Control API",
-  "main": "dist/api.js",
+  "name": "presonus-MQTT-Bridge",
+  "version": "0.1.0",
+  "description": "Connect Presonus to HomeAssistant or IOT Platform",
+  "main": "main.ts",
   "scripts": {
     "build": "npm-run-all lint clean transpile",
     "build:fix": "npm-run-all lint:fix clean transpile",
@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/featherbear/PreSonus-StudioLive-API.git"
+    "url": "git+https://github.com/lukeskywalkerhq/Presonus-MQTT-Bridge.git"
   },
-  "author": "featherbear",
+  "author": "lukeskywalkerhq",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/featherbear/PreSonus-StudioLive-API/issues"
+    "url": "https://github.com/lukeskywalkerhq/Presonus-MQTT-Bridge/issues"
   },
-  "homepage": "https://featherbear.cc/presonus-studiolive-api",
+  "homepage": "https://github.com/lukeskywalkerhq/Presonus-MQTT-Bridge",
   "dependencies": {
     "bunyan": "^1.8.15",
     "mqtt": "^5.10.4",
