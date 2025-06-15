@@ -2,7 +2,7 @@
   "name": "presonus-MQTT-Bridge",
   "version": "0.1.0",
   "description": "Connect Presonus to HomeAssistant or IOT Platform",
-  "main": "main.ts",
+  "main": "dist/main.js",
   "scripts": {
     "build": "npm-run-all lint clean transpile",
     "build:fix": "npm-run-all lint:fix clean transpile",
