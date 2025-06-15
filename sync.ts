@@ -19,9 +19,6 @@ export async function updateMainFaders(dataList: any){
     if(!localMain){
         localMain = dataList
         updateMQTTMainAndMasterFader(dataList)
-        //todo add function to update Masters
-        //todo fix update for init main
-        //main/1/line/1/fader/state
     }
     else{
         for (const ch in dataList.LINE){
