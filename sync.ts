@@ -21,50 +21,87 @@ export async function updateMainFaders(dataList: any){
         updateMQTTMainAndMasterFader(dataList)
         //todo add function to update Masters
         //todo fix update for init main
+        //main/1/line/1/fader/state
     }
     else{
         for (const ch in dataList.LINE){
             if (dataList.LINE[ch] != localMain.LINE[ch]){
+                const channel: number = Number(ch) + 1
+                const topic: string = `main/1/line/${channel}/fader/state`
+                const state: string = dataList.LINE[ch].toFixed(1).toString()
+                await updateSensor(topic, state, false)
                 localMain.LINE[ch] = dataList.LINE[ch]
             }
         }
         for (const ch in dataList.RETURN){
             if (dataList.RETURN[ch] != localMain.RETURN[ch]){
+                const channel: number = Number(ch) + 1
+                const topic: string = `main/1/return/${channel}/fader/state`
+                const state: string = dataList.RETURN[ch].toFixed(1).toString()
+                await updateSensor(topic, state, false)
                 localMain.RETURN[ch] = dataList.RETURN[ch]
             }
         }
         for (const ch in dataList.FXRETURN){
             if (dataList.FXRETURN[ch] != localMain.FXRETURN[ch]){
+                const channel: number = Number(ch) + 1
+                const topic: string = `main/1/fxreturn/${channel}/fader/state`
+                const state: string = dataList.FXRETURN[ch].toFixed(1).toString()
+                await updateSensor(topic, state, false)
                 localMain.FXRETURN[ch] = dataList.FXRETURN[ch]
             }
         }
         for (const ch in dataList.TALKBACK){
             if (dataList.TALKBACK[ch] != localMain.TALKBACK[ch]){
+                const channel: number = Number(ch) + 1
+                const topic: string = `main/1/talkback/${channel}/fader/state`
+                const state: string = dataList.TALKBACK[ch].toFixed(1).toString()
+                await updateSensor(topic, state, false)
                 localMain.TALKBACK[ch] = dataList.TALKBACK[ch]
             }
         }
         for (const ch in dataList.AUX){
             if (dataList.AUX[ch] != localMain.AUX[ch]){
+                const channel: number = Number(ch) + 1
+                const topic: string = `masters/1/aux/${channel}/fader/state`
+                const state: string = dataList.AUX[ch].toFixed(1).toString()
+                await updateSensor(topic, state, false)
                 localMain.AUX[ch] = dataList.AUX[ch]
             }
         }
         for (const ch in dataList.FX){
             if (dataList.FX[ch] != localMain.FX[ch]){
+                const channel: number = Number(ch) + 1
+                const topic: string = `masters/1/fx/${channel}/fader/state`
+                const state: string = dataList.FX[ch].toFixed(1).toString()
+                await updateSensor(topic, state, false)
                 localMain.FX[ch] = dataList.FX[ch]
             }
         }
         for (const ch in dataList.MAIN){
             if (dataList.MAIN[ch] != localMain.MAIN[ch]){
+                const channel: number = Number(ch) + 1
+                const topic: string = `masters/1/main/${channel}/fader/state`
+                const state: string = dataList.MAIN[ch].toFixed(1).toString()
+                await updateSensor(topic, state, false)
                 localMain.MAIN[ch] = dataList.MAIN[ch]
             }
         }
         for (const ch in dataList.MONO){
             if (dataList.MONO[ch] != localMain.MONO[ch]){
+                const channel: number = Number(ch) + 1
+                const topic: string = `masters/1/mono/${channel}/fader/state`
+                const state: string = dataList.MONO[ch].toFixed(1).toString()
+                await updateSensor(topic, state, false)
                 localMain.MONO[ch] = dataList.MONO[ch]
             }
         }
         for (const ch in dataList.MASTER){
             if (dataList.MASTER[ch] != localMain.MASTER[ch]){
+                const channel: number = Number(ch) + 1
+                const topic: string = `masters/1/master/${channel}/fader/state`
+                const state: string = dataList.MASTER[ch].toFixed(1).toString()
+                await updateSensor(topic, state, false)
                 localMain.MASTER[ch] = dataList.MASTER[ch]
             }
         }
@@ -170,7 +207,7 @@ async function syncColor(topic: string, channelselector: channelselector): Promi
 
 async function syncFaders(topic: string, channelselector: channelSelector): Promise<void> {
     const state: number = await getLevel(channelselector);
-    const roundedState: string = state.toFixed(1);
+    const roundedState: string = state.toFixed(1).toString();
     await updateSensor(topic, roundedState);
 }
 
