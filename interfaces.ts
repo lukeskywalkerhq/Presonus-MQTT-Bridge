@@ -30,7 +30,6 @@ export interface HomeAssistantEntityConfig {
     };
     icon?: string;
     entity_category?: 'config' | 'diagnostic';
-    device_class?: string;
     unit_of_measurement?: string;
     value_template?: string;
     json_attributes_topic?: string;
@@ -49,28 +48,12 @@ export interface HomeAssistantEntityConfig {
     has_entity_name?: boolean;
     device_automation?: any; // You might want a more specific type here later
     entity_namespace?: string;
-    last_reset?: string; // For sensors with total increasing
-    state_class?: 'measurement' | 'total' | 'total_increasing'; // For sensors
     suggested_display_precision?: number; // For numeric entities
     command_topic?: string; // Common for controllable entities
 }
 
-export interface NumberSensorConfig extends HomeAssistantEntityConfig {
-    component: 'sensor';
-    device_class?: 'apparent_power' | 'aqi' | 'area' | 'atmospheric_pressure' | 'battery' | 'blood_glucose_concentration' | 'carbon_dioxide' | 'carbon_monoxide' | 'current' | 'data_rate' | 'data_size' | 'date' | 'distance' | 'duration' | 'energy' | 'energy_storage' | 'frequency' | 'gas' | 'humidity' | 'illuminance' | 'irradiance' | 'moisture' | 'monetary' | 'nitrogen_dioxide' | 'nitrogen_monoxide' | 'nitrous_oxide' | 'ozone' | 'ph' | 'pm1' | 'pm10' | 'pm25' | 'power_factor' | 'power' | 'precipitation' | 'precipitation_intensity' | 'pressure' | 'reactive_power' | 'signal_strength' | 'sound_pressure' | 'speed' | 'sulphur_dioxide' | 'temperature' | 'timestamp' | 'volatile_organic_compounds' | 'voltage' | 'volume' | 'volume_flow_rate' | 'weight' | 'wind_speed' | 'wind_bearing';
-    state_class?: 'measurement' | 'total' | 'total_increasing';
-    unit_of_measurement?: string;
-    state_topic: string;
-    value_template?: string;
-    expire_after?: number;
-    last_reset?: string;
-    suggested_display_precision?: number;
-}
-
 export interface RgbLightConfig extends HomeAssistantEntityConfig {
     component: 'light';
-    command_topic: string; // Specific to lights
-    state_topic?: string;   // Often used for lights
     brightness?: boolean;
     brightness_state_topic?: string;
     brightness_command_topic?: string;
@@ -104,44 +87,30 @@ export interface RgbLightConfig extends HomeAssistantEntityConfig {
     on_command_type?: 'last' | 'brightness' | 'color';
     payload_on?: string;
     payload_off?: string;
-    payload_available?: string; // Inherited from HomeAssistantEntityConfig
-    payload_not_available?: string; // Inherited from HomeAssistantEntityConfig
 }
 
 export interface SensorConfig extends HomeAssistantEntityConfig {
     component: 'sensor';
     device_class?: 'battery' | 'carbon_dioxide' | 'carbon_monoxide' | 'current' | 'date' | 'device_temperature' | 'dew_point' | 'energy' | 'humidity' | 'illuminance' | 'power' | 'pressure' | 'signal_strength' | 'temperature' | 'timestamp' | 'voltage' | 'weight' | 'wind_speed' | 'wind_bearing' | 'precipitation' | 'precipitation_probability';
     state_class?: 'measurement' | 'total' | 'total_increasing';
-    unit_of_measurement?: string;
-    state_topic: string; // Often mandatory for sensors
-    value_template?: string;
-    expire_after?: number;
-    last_reset?: string;
-    suggested_display_precision?: number;
+    last_reset?: string; // For sensors with total increasing
 }
 
 export interface NumberConfig extends HomeAssistantEntityConfig {
     component: 'number';
-    command_topic: string;
-    state_topic?: string;
     min?: number;
     max?: number;
     step?: number;
-    unit_of_measurement?: string;
     mode?: 'auto' | 'box' | 'slider';
-    value_template?: string;
     command_template?: string;
 }
 
 export interface SwitchConfig extends HomeAssistantEntityConfig {
     component: 'switch';
-    command_topic: string;
-    state_topic?: string;
     payload_on?: string;
     payload_off?: string;
     state_on?: string | number | boolean;
     state_off?: string | number | boolean;
-    value_template?: string;
     assumed_state?: boolean;
 }
 
@@ -160,8 +129,8 @@ export interface meterGroup{
 export interface mixGroup{
     name: string;
     size: number;
-    supported_inputs: string[];
-    supported_controls: any;
+    supported_inputs?: string[];
+    supported_controls?: any;
     enabled?: boolean,
     features: inputControl[]
 }

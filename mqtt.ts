@@ -193,7 +193,7 @@ export async function publishDiscoveryData(discoveryPayload: any[]) {
 
     for (const item of batchPayload) {
         try {
-            await publishMQTT(item.topic, item.payload, { retain: true });
+            await publishMQTT(item.topic, item.payload, true);
             console.log(`Published discovery config to ${item.topic}`);
         } catch (error) {
             console.error(`Error publishing to ${item.topic}:`, error);

@@ -1,20 +1,18 @@
 import { Client } from './my-repo/src/api';
 import {
-    enableChannels,
-    updateMQTTColor,
-    updateMQTTAuxFader,
-    updateMQTTAuxMute, updateMQTTLastAction, updateMQTTMainFader,
+    updateMQTTColor, updateMQTTAuxFader,
+    updateMQTTAuxMute, updateMQTTLastAction,
     updateMQTTMainMute, updateMQTTPeak,
-    updateMQTTProject,
-    updateMQTTScene, updateMQTTScreen,
-    updateMQTTSelect,
-    updateSensor,
-    updateMQTTSolo, publishDiscoveryData
+    updateMQTTScreen, updateMQTTSelect,
+    updateSensor, updateMQTTSolo
 } from "./mqtt";
-import {getConfiguration, getDiscoveryJSON, getMeterDiscovory} from "./discovery_json";
-import {getSystemJson} from "./system_json"
+import {getConfiguration} from "./discovery_json";
 import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
-import {syncEntities, syncTalkback, setSyncConfiguration, syncMuteGroups, updateMainFaders, clearLocalMain} from "./sync";
+import {
+    syncEntities, syncTalkback,
+    setSyncConfiguration, syncMuteGroups,
+    updateMainFaders, clearLocalMain
+} from "./sync";
 import {setMainConfiguration} from "./main"
 
 let clientPresonus: Client | null = null; // Initialize as null
@@ -24,8 +22,8 @@ async function startMeters(){
 
     clientPresonus.on('meter', (meterData) => {
 
-        if (meterData.input) {
-             console.log("All Input Levels:", meterData.input);
+        if (meterData) {
+             console.log("All Input Levels:", meterData);
         }
 
         // console.log("Main Mix Levels:", meterData.main);
@@ -88,7 +86,7 @@ export async function updatePresonusColor(topic: string, state: string) {
 export async function updatePresonusPan(topic: string, state: string) {
     const selected: channelSelector = getChannelSelector(topic)
 
-    clientPresonus.setPan(selected, state);
+    clientPresonus.setPan(selected, Number(state));
 }
 
 export async function updatePresonusLink(topic: string, state: string){
@@ -266,7 +264,6 @@ export async function connectPresonus(options: any): Promise<boolean> {
         } else if (code == "PC" && data.name.includes("color")){
             updateMQTTColor(data);
         } else if (code == "MS"){
-            //updateMQTTMainFader(data);
             updateMainFaders(data);
         } else {
             updateMQTTLastAction(data);

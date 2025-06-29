@@ -369,7 +369,7 @@ export function getConfiguration(channels: any, options: any): configuration {
     //todo missing return
     let config: configuration = {
         mixes: [],
-        meters: { name: 'meters', enabled: options.meter, controls: getMeterConfig(channels, options)}, // Initialize meters
+        meters: { name: 'meters', enabled: options.meter, features: getMeterConfig(channels, options)}, // Initialize meters
         masters: { name: 'masters', size: 1, enabled: options.masters, features: getMasterConfig(channels, options) } // Initialize masters
     };
 
