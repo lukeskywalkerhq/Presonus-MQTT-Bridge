@@ -1,8 +1,5 @@
-import * as fsPromises from 'fs/promises'; // For async operations
 import * as fs from 'fs'; // For sync operations
-import { simpleGit, SimpleGit, CleanOptions } from 'simple-git';
-import * as path from 'path';
-import {MQTTEvent, subscribeMQTT, publishDiscoveryData, updateSensor} from "./mqtt";
+import {MQTTEvent, subscribeMQTT, publishDiscoveryData} from "./mqtt";
 import {getSystemJson} from "./system_json"
 import {getDiscoveryJSON, getMeterDiscovory} from "./discovery_json"
 import {connectPresonus} from "./presonus"
@@ -12,37 +9,6 @@ let configuration: any
 
 export function setMainConfiguration(newConfiguration: any): void {
     configuration = newConfiguration;
-}
-
-async function downloadLatestRepo(repoUrl: string, destinationPath: string): Promise<void> {
-    try {
-        console.log(`Attempting to download the latest version of ${repoUrl} to ${destinationPath}`);
-
-        // Check if the destination directory exists
-        const destinationExists = await fsPromises.access(destinationPath).then(() => true).catch(() => false);
-
-        const git: SimpleGit = simpleGit();
-
-        if (destinationExists) {
-            console.log(`Destination path exists. Attempting to update.`);
-            await git.cwd(destinationPath);
-            await git.checkout('master', ['--force']); // Or 'master', adjust based on repo's default branch
-            await git.clean(CleanOptions.FORCE);
-            const pullResult = await git.pull('origin', 'master'); // Or 'master'
-            console.log('Repository updated successfully:', pullResult);
-        } else {
-            console.log(`Destination path does not exist. Cloning repository.`);
-            await fsPromises.mkdir(destinationPath, { recursive: true });
-            const cloneResult = await git.clone(repoUrl, destinationPath);
-            console.log('Repository cloned successfully:', cloneResult);
-        }
-
-        console.log('Download/update process completed.');
-
-    } catch (error) {
-        console.error('Error downloading/updating repository:', error);
-        throw error; // Re-throw the error for the calling function to handle
-    }
 }
 
 export function readConfigFile(filePath: string): any {
@@ -107,7 +73,7 @@ async function configure(): Promise<void>{
     }
 }
 
-async function connect(): Promise<void> {
+async function main(): Promise<void> {
     options = getOptions();
 
     if (options) {
@@ -133,20 +99,6 @@ async function connect(): Promise<void> {
         await updateSensor('available', 'Online', false);
     } else {
         console.error("Failed to load configuration");
-    }
-}
-
-function main() {
-    const repositoryUrl = 'https://github.com/featherbear/presonus-studiolive-api.git';
-    const downloadDirectory = path.join(__dirname, 'my-repo');
-
-    try {
-        downloadLatestRepo(repositoryUrl, downloadDirectory)
-            .then(() => connect()) // Pass a function that calls connect()
-            .then(() => console.log('Repository is now up to date and services are connected in:', downloadDirectory))
-            .catch((error) => console.error('Failed during repository download or service connection:', error));
-    } catch (error) {
-        console.error('An unexpected error occurred before Promise chaining:', error);
     }
 }
 

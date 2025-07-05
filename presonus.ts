@@ -1,4 +1,4 @@
-import { Client } from './my-repo/src/api';
+import { ChannelSelector, Client } from 'presonus-studiolive-api';
 import {
     updateMQTTColor, updateMQTTAuxFader,
     updateMQTTAuxMute, updateMQTTLastAction,
@@ -7,7 +7,7 @@ import {
     updateSensor, updateMQTTSolo
 } from "./mqtt";
 import {getConfiguration} from "./discovery_json";
-import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
+//import channelSelector from "presonus-studiolive-api";
 import {
     syncEntities, syncTalkback,
     setSyncConfiguration, syncMuteGroups,
@@ -31,36 +31,36 @@ async function startMeters(){
     });
 }
 
-export async function getPan(channelSelector: channelSelector) :Promise<number> {
+export async function getPan(channelSelector: ChannelSelector) :Promise<number> {
     //todo link function missing from api
     return 50
 }
 
-export async function getLink(channelSelector: channelSelector) :Promise<boolean> {
+export async function getLink(channelSelector: ChannelSelector) :Promise<boolean> {
     //todo link function missing from api
     return false
 }
 
-export async function getMute(channelSelector: channelSelector) :Promise<boolean> {
+export async function getMute(channelSelector: ChannelSelector) :Promise<boolean> {
     return clientPresonus.getMute(channelSelector)
 }
 
-export async function getSolo(channelSelector: channelSelector) :Promise<boolean> {
+export async function getSolo(channelSelector: ChannelSelector) :Promise<boolean> {
     return clientPresonus.getSolo(channelSelector)
 }
 
-export async function getLevel(channelSelector: channelSelector) :Promise<number> {
+export async function getLevel(channelSelector: ChannelSelector) :Promise<number> {
     return clientPresonus.getLevel(channelSelector)
 }
 
-export async function getColor(channelSelector: channelSelector) :Promise<string> {
+export async function getColor(channelSelector: ChannelSelector) :Promise<string> {
     return clientPresonus.getColour(channelSelector)
 }
 
 //todo convert all topics to channelselectors in functions
 
 export async function updatePresonusColor(topic: string, state: string) {
-    const selected: channelSelector = getChannelSelector(topic)
+    const selected: ChannelSelector = getChannelSelector(topic)
     let hex: string
 
     if (topic.includes("rgb")) {
@@ -84,7 +84,7 @@ export async function updatePresonusColor(topic: string, state: string) {
 }
 
 export async function updatePresonusPan(topic: string, state: string) {
-    const selected: channelSelector = getChannelSelector(topic)
+    const selected: ChannelSelector = getChannelSelector(topic)
 
     clientPresonus.setPan(selected, Number(state));
 }
@@ -149,7 +149,9 @@ export function getChannelSelector(topic: string){
     let inputType: string = topics[3].toUpperCase()
     const inputCh: number = Number(topics[4])
 
-    let selected: channelSelector = null;
+    type ChannelTypes = "MONO" | "MASTER" | "LINE" | "RETURN" | "FXRETURN" | "TALKBACK" | "AUX" | "FX" | "SUB" | "MAIN";
+
+    let selected: ChannelSelector = null;
 
     if (inputType == "SOLO" || inputType == "COLOR"){
         inputType = "LINE"
@@ -157,14 +159,14 @@ export function getChannelSelector(topic: string){
 
     if (mix == "FX" || mix == "AUX"){
         selected = {
-            type: inputType,
+            type: inputType as ChannelTypes,
             channel: inputCh,
             mixType: mix,
             mixNumber: mixCh
         }
     } else {
         selected = {
-            type: inputType,
+            type: inputType as ChannelTypes,
             channel: inputCh
         }
     }

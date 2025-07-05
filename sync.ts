@@ -1,5 +1,5 @@
 import {getLink, getMute, getSolo, getLevel, getPan, getColor} from "./presonus";
-import channelSelector from "./my-repo/src/lib/types/ChannelSelector";
+import ChannelSelector from "presonus-studiolive-api";
 import {updateSensor} from "./mqtt";
 import {mainLayout} from "./interfaces"
 import {updateMQTTMainAndMasterFader} from "./mqtt"
@@ -142,7 +142,7 @@ export async function syncMuteGroups(data: any){
                     for (let i: number = 0; i < inputSize; i++){ //loop thu all mutes channels
 
                         const topic: string = `${mixConfig.name}/${mixIndex + 1}/${inputType}/${i + 1}/mute/state`
-                        const channelSelector: channelSelector = getChannelSelector(mixConfig, mixIndex + 1, i + 1, inputType)
+                        const channelSelector: ChannelSelector = getChannelSelector(mixConfig, mixIndex + 1, i + 1, inputType)
 
                         await syncMute(topic, channelSelector)
                     }
@@ -153,7 +153,7 @@ export async function syncMuteGroups(data: any){
     }
 }
 
-async function syncPan(topic: string, channelselector: channelSelector): Promise<void> {
+async function syncPan(topic: string, channelselector: ChannelSelector): Promise<void> {
     //API does not have getPan function
     // leaving this here in case changes are made to support function
     //todo add check to see if value exists before overwriting
@@ -166,7 +166,7 @@ async function syncPan(topic: string, channelselector: channelSelector): Promise
     await updateSensor(topic, "50");
 }
 
-async function syncColor(topic: string, channelselector: channelselector): Promise<void> {
+async function syncColor(topic: string, channelselector: ChannelSelector): Promise<void> {
     const state: string | null | undefined = await getColor(channelselector);
     let color: string;
     let powerState: string;
@@ -202,14 +202,14 @@ async function syncColor(topic: string, channelselector: channelselector): Promi
     await updateSensor(topic + "/power", powerState);
 }
 
-async function syncFaders(topic: string, channelselector: channelSelector): Promise<void> {
+async function syncFaders(topic: string, channelselector: ChannelSelector): Promise<void> {
     const state: number = await getLevel(channelselector);
     const roundedState: string = state.toFixed(1).toString();
     await updateSensor(topic, roundedState);
 }
 
 
-async function syncSolo(topic: string, channelselector: channelSelector): Promise<void> {
+async function syncSolo(topic: string, channelselector: ChannelSelector): Promise<void> {
     const state: boolean = await getSolo(channelselector)
 
     let publishState: string
@@ -223,7 +223,7 @@ async function syncSolo(topic: string, channelselector: channelSelector): Promis
     await updateSensor(topic, publishState)
 }
 
-async function syncMute(topic: string, channelselector: channelSelector): Promise<void> {
+async function syncMute(topic: string, channelselector: ChannelSelector): Promise<void> {
     const state: boolean = await getMute(channelselector)
 
     let publishState: string
@@ -237,7 +237,7 @@ async function syncMute(topic: string, channelselector: channelSelector): Promis
     await updateSensor(topic, publishState)
 }
 
-async function syncLink(topic: string, channelselector: channelSelector): Promise<void> {
+async function syncLink(topic: string, channelselector: ChannelSelector): Promise<void> {
     //API Does not have getLink function
     // leaving this here just in case it gets added later
     /*
@@ -257,19 +257,21 @@ async function syncLink(topic: string, channelselector: channelSelector): Promis
     await updateSensor(topic, "Unlinked")
 }
 
-function getChannelSelector(mixconfig: any, mixChannel: number, inputChannel: number, feature: string): channelSelector {
-    let selected: channelSelector = null;
+function getChannelSelector(mixconfig: any, mixChannel: number, inputChannel: number, feature: string): ChannelSelector {
+    let selected: ChannelSelector = null;
+
+    type ChannelTypes = "MONO" | "MASTER" | "LINE" | "RETURN" | "FXRETURN" | "TALKBACK" | "AUX" | "FX" | "SUB" | "MAIN";
 
     if (mixconfig.name == "fx" || mixconfig.name == "aux"){
         selected = {
-            type: feature.toUpperCase(),
+            type: feature.toUpperCase() as ChannelTypes,
             channel: inputChannel,
             mixType: mixconfig.name.toUpperCase(),
             mixNumber: mixChannel
         }
     } else {
         selected = {
-            type: feature.toUpperCase(),
+            type: feature.toUpperCase() as ChannelTypes,
             channel: inputChannel
         }
     }
@@ -282,7 +284,7 @@ export async function syncEntities(mixConfig: any, mixIndex: number): Promise<vo
         const currentFeature = mixConfig.features[feature];
         for (let i = 0; i < currentFeature.size; i++) {
             const topic: string = `${mixConfig.name}/${mixIndex}/${currentFeature.name}/${i + 1}/${currentFeature.type}/state`
-            const channel: channelSelector = getChannelSelector(mixConfig, mixIndex, i + 1, currentFeature.name)
+            const channel: ChannelSelector = getChannelSelector(mixConfig, mixIndex, i + 1, currentFeature.name)
 
             if (currentFeature.type == "mute") {
                 await syncMute(topic, channel);

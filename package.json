@@ -27,6 +27,8 @@
   "dependencies": {
     "bunyan": "^1.8.15",
     "mqtt": "^5.10.4",
+    "pino": "^9.7.0",
+    "presonus-studiolive-api": "github:featherbear/presonus-studiolive-api#v1.6.0",
     "queue": "^6.0.1",
     "simple-git": "^3.27.0",
     "yarn": "^1.22.22"
