@@ -1,4 +1,4 @@
-import { ChannelSelector, Client } from 'presonus-studiolive-api';
+import { ChannelSelector, Client, ChannelTypes, Channel } from 'presonus-studiolive-api';
 import {
     updateMQTTColor, updateMQTTAuxFader,
     updateMQTTAuxMute, updateMQTTLastAction,
@@ -7,7 +7,6 @@ import {
     updateSensor, updateMQTTSolo
 } from "./mqtt";
 import {getConfiguration} from "./discovery_json";
-//import channelSelector from "presonus-studiolive-api";
 import {
     syncEntities, syncTalkback,
     setSyncConfiguration, syncMuteGroups,
@@ -16,6 +15,25 @@ import {
 import {setMainConfiguration} from "./main"
 
 let clientPresonus: Client | null = null; // Initialize as null
+
+export function getChannelType(channel: string): ChannelTypes { // Return type is now ChannelTypes (the keys)
+    const upperCaseChannel = channel.toUpperCase();
+
+    switch (upperCaseChannel) {
+        case 'LINE': return 'LINE';
+        case 'RETURN': return 'RETURN';
+        case 'FXRETURN': return 'FXRETURN';
+        case 'TALKBACK': return 'TALKBACK';
+        case 'AUX': return 'AUX';
+        case 'FX': return 'FX';
+        case 'SUB': return 'SUB';
+        case 'MAIN': return 'MAIN';
+        case 'MONO': return 'MONO';
+        case 'MASTER': return 'MASTER';
+        default:
+            throw new Error(`Unsupported channel value "${channel}" for API Channel type.`);
+    }
+}
 
 async function startMeters(){
     clientPresonus.meterSubscribe()
@@ -143,11 +161,14 @@ export async function updatePresonusMute(topic: string, state: string){
 
 export function getChannelSelector(topic: string){
     //example topic: presonus/main/1/line/1/mute/state
+
     const topics: string[] = topic.split("/")
-    const mix: string = topics[1].toUpperCase();
-    const mixCh: number = Number(topics[2]);
-    let inputType: string = topics[3].toUpperCase()
-    const inputCh: number = Number(topics[4])
+    const mix: string = topics[2].toUpperCase();
+    const mixCh: number = Number(topics[3]);
+    let inputType: string = topics[4].toUpperCase()
+    const inputCh: number = Number(topics[5])
+
+    //todo update to pull from types from API
 
     type ChannelTypes = "MONO" | "MASTER" | "LINE" | "RETURN" | "FXRETURN" | "TALKBACK" | "AUX" | "FX" | "SUB" | "MAIN";
 

@@ -74,7 +74,7 @@ async function configure(): Promise<void>{
 }
 
 async function main(): Promise<void> {
-    options = getOptions();
+    options = await getOptions();
 
     if (options) {
         const { connectMQTT, updateSensor } = await import("./mqtt");

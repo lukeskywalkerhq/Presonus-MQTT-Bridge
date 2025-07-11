@@ -1,8 +1,6 @@
-import {getLink, getMute, getSolo, getLevel, getPan, getColor} from "./presonus";
-import ChannelSelector from "presonus-studiolive-api";
-import {updateSensor} from "./mqtt";
-import {mainLayout} from "./interfaces"
-import {updateMQTTMainAndMasterFader} from "./mqtt"
+import {getLink, getMute, getSolo, getLevel, getPan, getColor, getChannelType} from "./presonus";
+import { ChannelSelector, ChannelTypes } from 'presonus-studiolive-api';
+import { updateSensor, updateMQTTMainAndMasterFader } from "./mqtt";
 
 let configuration: any = null
 let localMain: any
@@ -258,22 +256,42 @@ async function syncLink(topic: string, channelselector: ChannelSelector): Promis
 }
 
 function getChannelSelector(mixconfig: any, mixChannel: number, inputChannel: number, feature: string): ChannelSelector {
-    let selected: ChannelSelector = null;
+    let selected: ChannelSelector;
 
-    type ChannelTypes = "MONO" | "MASTER" | "LINE" | "RETURN" | "FXRETURN" | "TALKBACK" | "AUX" | "FX" | "SUB" | "MAIN";
+    const channelType = getChannelType(feature);
+    const isMixConfig = mixconfig.name === "fx" || mixconfig.name === "aux";
 
-    if (mixconfig.name == "fx" || mixconfig.name == "aux"){
-        selected = {
-            type: feature.toUpperCase() as ChannelTypes,
-            channel: inputChannel,
-            mixType: mixconfig.name.toUpperCase(),
-            mixNumber: mixChannel
+    let baseSelector: { type: ChannelTypes | 'MAIN' | 'TALKBACK', channel?: number };
+
+    // Handle the specific 'MAIN' | 'TALKBACK' type for 'channel?: 1'
+    if (channelType === 'MAIN' || channelType === 'TALKBACK') {
+        baseSelector = { type: channelType };
+
+        if (inputChannel === 1) {
+            baseSelector.channel = inputChannel;
+
+        } else if (inputChannel !== undefined && inputChannel !== null) {
+            console.warn(`Channel type ${channelType} expects channel to be 1 or undefined. Received ${inputChannel}. Omitting channel property.`);
         }
+
+    } else {
+        baseSelector = {
+            type: channelType,
+            channel: inputChannel
+        };
+    }
+
+
+    if (isMixConfig) {
+        selected = {
+            ...baseSelector,
+            mixType: mixconfig.name.toUpperCase() as 'AUX' | 'FX', // Asserting to 'AUX' | 'FX'
+            mixNumber: mixChannel
+        } as ChannelSelector; // Asserting the whole object to ChannelSelector
     } else {
         selected = {
-            type: feature.toUpperCase() as ChannelTypes,
-            channel: inputChannel
-        }
+            ...baseSelector
+        } as ChannelSelector;
     }
 
     return selected;
