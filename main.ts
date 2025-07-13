@@ -1,5 +1,5 @@
 import * as fs from 'fs'; // For sync operations
-import {MQTTEvent, subscribeMQTT, publishDiscoveryData} from "./mqtt";
+import {connectMQTT, updateSensor, MQTTEvent, subscribeMQTT, publishDiscoveryData} from "./mqtt";
 import {getSystemJson} from "./system_json"
 import {getDiscoveryJSON, getMeterDiscovory} from "./discovery_json"
 import {connectPresonus} from "./presonus"
@@ -69,30 +69,78 @@ async function configure(): Promise<void>{
     }
 }
 
+// A utility function to create a delay
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function gracefullyMQTTConnect(options: any): Promise<boolean> {
+    let attempt = 0;
+    const maxRetries = 10;
+
+    while (attempt < maxRetries) {
+        attempt++;
+
+        try {
+            console.log(`Attempting to connect to MQTT Broker (Attempt #${attempt})...`);
+            await connectMQTT(options);
+            console.log("Successfully connected to MQTT Broker!");
+            return true
+
+        } catch (error) {
+            console.error("Can't connect to MQTT Broker:", error);
+
+            if (attempt < maxRetries) {
+                const nextDelay = options.reconnectPeriod * Math.pow(2, attempt - 1);
+                console.log(`Retrying in ${nextDelay / 1000} seconds...`);
+                await delay(nextDelay); // Pause execution for the calculated delay
+            } else {
+                console.error("Maximum retry attempts reached. Giving up.");
+                return false
+            }
+        }
+    }
+}
+
+
+async function gracefulPresonusConnect(options: any): Promise<void> {
+    while (true) {
+        try {
+            await updateSensor('system/status', 'Connecting', false);
+
+            console.log("Attempting to connect to Presonus...");
+            await connectPresonus(options);
+            console.log("Connection to Presonus successful!");
+
+            await updateSensor('system/status', 'Connected', true);
+            await configure();
+            break;
+
+        } catch (error) {
+            console.error("Can't Connect to Presonus:", error);
+            await updateSensor('system/status', 'Disconnected', false);
+
+            await delay(options.reconnectPeriod);
+        }
+    }
+}
+
 async function main(): Promise<void> {
     options = await readConfigFile("config/config.json");
 
     if (options) {
-        const { connectMQTT, updateSensor } = await import("./mqtt");
-        await connectMQTT(options.mqttOptions);
-        await updateSensor('available', 'Offline', false);
-        await updateSensor('system/status', 'Connecting', false);
-        try {
-            await connectPresonus(options.presonusOptions)
-                .catch((error) => console.error("Can't Connect to Presonus: ", error));
-        } catch (error) {
-            console.error("Can't Connect: ", error);
+        if (await gracefullyMQTTConnect(options.mqttOptions)){
+            await updateSensor('available', 'Offline', false);
+            await updateSensor('system/status', 'Connecting', false);
+
+            await gracefulPresonusConnect(options.presonusOptions)
+
+            await updateSensor('system/status', 'Configuring', false);
+
+            const topic = `presonus/${options.mqttOptions.model}/#`;
+            subscribeMQTT(topic, MQTTEvent);
+
+            await updateSensor('system/status', 'Ready', false);
+            await updateSensor('available', 'Online', false);
         }
-
-        await updateSensor('available', 'Offline', false);
-        await updateSensor('system/status', 'Configuring', false);
-        await configure()
-
-        const topic = `presonus/${options.mqttOptions.model}/#`;
-        subscribeMQTT(topic, MQTTEvent);
-
-        await updateSensor('system/status', 'Ready', false);
-        await updateSensor('available', 'Online', false);
     } else {
         console.error("Failed to load configuration");
     }

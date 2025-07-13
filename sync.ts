@@ -5,6 +5,8 @@ import { updateSensor, updateMQTTMainAndMasterFader } from "./mqtt";
 let configuration: any = null
 let localMain: any
 
+//todo add sync for current project and scene
+
 export function setSyncConfiguration(localConfiguration: any){
     configuration = localConfiguration
 }

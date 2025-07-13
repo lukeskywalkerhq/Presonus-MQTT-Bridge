@@ -210,6 +210,7 @@ export async function connectPresonus(options: any): Promise<boolean> {
     });
 
     clientPresonus.on('reconnecting', function () {
+        updateSensor('available', 'Offline', false);
         updateSensor('system/status', 'Reconnecting', false);
         console.log('evt: Presonus Reconnecting');
     });
