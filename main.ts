@@ -11,7 +11,7 @@ export function setMainConfiguration(newConfiguration: any): void {
     configuration = newConfiguration;
 }
 
-export function readConfigFile(filePath: string): any {
+function readConfigFile(filePath: string): any {
     try {
         const data = fs.readFileSync(filePath, 'utf8');
         return parseConfigData(data);
@@ -35,10 +35,6 @@ function parseConfigData(data: string): any {
         });
         return config;
     }
-}
-
-function getOptions(): any {
-    return readConfigFile("config.json");
 }
 
 async function configure(): Promise<void>{
@@ -74,7 +70,7 @@ async function configure(): Promise<void>{
 }
 
 async function main(): Promise<void> {
-    options = await getOptions();
+    options = await readConfigFile("config/config.json");
 
     if (options) {
         const { connectMQTT, updateSensor } = await import("./mqtt");
