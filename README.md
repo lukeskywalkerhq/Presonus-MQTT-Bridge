@@ -4,7 +4,7 @@ Currently Tested with StudioLive Series III 64s
 Still a work in progress
 
 This is my First Major Project!!!!
-Constructive Citisism would be greatly apprciated
+Constructive Criticism would be greatly appreciated
 
 # Instructions
 
@@ -14,19 +14,16 @@ https://hub.docker.com/r/shoffluke/presonus-mqtt-bridge
 
 For more help setting up a docker container, please refer to docker's set up guide.
 
+You can also run the main.ts file if you wanted to run it without a docker container, but I wouldn't recommend it.
+
 ## Configuration
 
 Make sure you create a bind mount located at /app/config/. Inside the bind mount create a single file called, config.json and copy and change this section to match your needs.
 
-Also make sure you either espose the network though host network, or both the presonus port, and the mqtt port.
 ```angular2html
-Presonus port: 53000
-MQTT port: 1883
+/app/config/
 ```
 
-After that it should be ready to go, If your having issues check your HomeAssistant MQTT configuration, or logs. On first connection it publishes a lot of configuration data. I added a small delay after every batch to give HomeAssistant some breathing room. If your still having issues increase the pause time. Because it also has to push all the configuration data it will also take a minute or two before its ready, this should only happen on first connection.
-
-If you have multiple images running, be sure to change the model and the client id. Model needs to be different and makes to change to how it preforms, clientID just needs to be a random set of letters and numbers
 ```
 {
 "presonusOptions": {
@@ -70,6 +67,21 @@ If you have multiple images running, be sure to change the model and the client 
 }
 }
 ```
+
+Also make sure you either expose the network though host network, or both the presonus port, and the mqtt port.
+```angular2html
+Default Presonus port: 53000
+Default MQTT port: 1883
+```
+
+After that it should be ready to go, If your having issues check your HomeAssistant MQTT configuration, or logs. On first connection it publishes a lot of configuration data. I added a small delay after every batch to give HomeAssistant some breathing room. If your still having issues increase the pause time. Because it also has to push all the configuration data it will also take a minute or two before it's ready, this should only happen on first connection after the image is running. If you want to speed up the Initialization Process, disable parts you don't need.
+
+Controls are only used if both inputs and mixes are enabled. For example if you wanted to be able to control the mute on line 1, aux 1; then aux, lines, and mutes all need to enabled. If anyone of those are disabled it won't work.
+
+If you have multiple images running, be sure to change the model and the client id. Model needs to be different and makes to change to how it performs, clientID just needs to be a random set of letters and numbers
+
  ## ToDo
 
 Meter Data is still not working
+
+Bug with Selected Channel
