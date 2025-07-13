@@ -25,6 +25,8 @@ MQTT port: 1883
 ```
 
 After that it should be ready to go, If your having issues check your HomeAssistant MQTT configuration, or logs. On first connection it publishes a lot of configuration data. I added a small delay after every batch to give HomeAssistant some breathing room. If your still having issues increase the pause time. Because it also has to push all the configuration data it will also take a minute or two before its ready, this should only happen on first connection.
+
+If you have multiple images running, be sure to change the model and the client id. Model needs to be different and makes to change to how it preforms, clientID just needs to be a random set of letters and numbers
 ```
 {
 "presonusOptions": {
