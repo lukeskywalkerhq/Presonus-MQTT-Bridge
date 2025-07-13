@@ -1,6 +1,6 @@
 {
   "presonusOptions": {
-    "ip": "10.10.11.45",
+    "ip": "192.168.1.10",
     "port": 53000,
     "autoreconnect": true,
     "reconnectPeriod": 2000,
@@ -28,14 +28,14 @@
     }
   },
   "mqttOptions": {
-    "url": "mqtt://10.10.11.3:1883",
-    "username": "pdlighthousemedia",
-    "password": "@Plaog16",
+    "url": "mqtt://192.168.1.12:1883",
+    "username": "username",
+    "password": "password",
     "clientId": "13c2841c",
     "model": "studiolive_64s",
     "publishDelay": 1000,
     "connectTimeout": 5000,
     "reconnectPeriod": 2000,
-    "prefix": "mqtt"
+    "prefix": "homeassistant"
   }
 }
