@@ -3,6 +3,7 @@ import {connectMQTT, updateSensor, MQTTEvent, subscribeMQTT, publishDiscoveryDat
 import {getSystemJson} from "./system_json"
 import {getDiscoveryJSON, getMeterDiscovory} from "./discovery_json"
 import {connectPresonus} from "./presonus"
+import {syncEntities} from "./sync"
 
 let options: any = null; // Declare options in main.ts
 let configuration: any
@@ -37,6 +38,24 @@ function parseConfigData(data: string): any {
     }
 }
 
+async function sync(): Promise<void> {
+    for (const mix in configuration.mixes){
+        const mixConfig = configuration.mixes[mix];
+        for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
+            if (mixConfig.features.length > 0){
+                await syncEntities(mixConfig, mixIndex + 1)
+            }
+        }
+    }
+
+    //publish data for masters
+    if (configuration.masters.enabled){
+        await syncEntities(configuration.masters, 1)
+    }
+
+    //todo add scene an project sync
+}
+
 async function configure(): Promise<void>{
     while (!configuration){
         console.log("waiting for config file");
@@ -69,7 +88,6 @@ async function configure(): Promise<void>{
     }
 }
 
-// A utility function to create a delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function gracefullyMQTTConnect(options: any): Promise<boolean> {
@@ -111,7 +129,6 @@ async function gracefulPresonusConnect(options: any): Promise<void> {
             console.log("Connection to Presonus successful!");
 
             await updateSensor('system/status', 'Connected', true);
-            await configure();
             break;
 
         } catch (error) {
@@ -129,11 +146,15 @@ async function main(): Promise<void> {
     if (options) {
         if (await gracefullyMQTTConnect(options.mqttOptions)){
             await updateSensor('available', 'Offline', false);
-            await updateSensor('system/status', 'Connecting', false);
 
+            await updateSensor('system/status', 'Connecting', false);
             await gracefulPresonusConnect(options.presonusOptions)
 
             await updateSensor('system/status', 'Configuring', false);
+            await configure();
+
+            await updateSensor('system/status', 'Syncing', false);
+            await sync();
 
             const topic = `presonus/${options.mqttOptions.model}/#`;
             subscribeMQTT(topic, MQTTEvent);

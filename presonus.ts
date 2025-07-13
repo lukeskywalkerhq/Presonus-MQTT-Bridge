@@ -1,15 +1,12 @@
 import { ChannelSelector, Client, ChannelTypes, Channel } from 'presonus-studiolive-api';
 import {
-    updateMQTTColor, updateMQTTAuxFader,
-    updateMQTTAuxMute, updateMQTTLastAction,
-    updateMQTTMainMute, updateMQTTPeak,
-    updateMQTTScreen, updateMQTTSelect,
-    updateSensor, updateMQTTSolo
+    updateMQTTColor, updateMQTTAuxFader, updateMQTTAuxMute,
+    updateMQTTLastAction, updateMQTTMainMute, updateMQTTPeak,
+    updateMQTTScreen, updateMQTTSelect, updateSensor, updateMQTTSolo
 } from "./mqtt";
 import {getConfiguration} from "./discovery_json";
 import {
-    syncEntities, syncTalkback,
-    setSyncConfiguration, syncMuteGroups,
+    syncTalkback, setSyncConfiguration, syncMuteGroups,
     updateMainFaders, clearLocalMain
 } from "./sync";
 import {setMainConfiguration} from "./main"
@@ -237,23 +234,8 @@ export async function connectPresonus(options: any): Promise<boolean> {
         const channels = clientPresonus.channelCounts;
         const configData = getConfiguration(channels, options);
 
-        setSyncConfiguration(configData)
+        setSyncConfiguration(configData) //maybe remove???
         setMainConfiguration(configData)
-
-
-        for (const mix in configData.mixes){
-            const mixConfig = configData.mixes[mix];
-            for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
-                if (mixConfig.features.length > 0){
-                    await syncEntities(mixConfig, mixIndex + 1)
-                }
-            }
-        }
-
-        //publish data for masters
-        if (configData.masters.enabled){
-            await syncEntities(configData.masters, 1)
-        }
 
         //startMeters()
 
