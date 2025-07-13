@@ -18,6 +18,12 @@ For more help setting up a docker container, please refer to docker's set up gui
 
 Make sure you create a bind mount located at /app/config/. Inside the bind mount create a single file called, config.json and copy and change this section to match your needs.
 
+Also make sure you either espose the network though host network, or both the presonus port, and the mqtt port.
+```angular2html
+Presonus port: 53000
+MQTT port: 1883
+```
+
 After that it should be ready to go, If your having issues check your HomeAssistant MQTT configuration, or logs. On first connection it publishes a lot of configuration data. I added a small delay after every batch to give HomeAssistant some breathing room. If your still having issues increase the pause time. Because it also has to push all the configuration data it will also take a minute or two before its ready, this should only happen on first connection.
 ```
 {
