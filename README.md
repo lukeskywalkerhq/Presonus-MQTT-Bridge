@@ -60,4 +60,4 @@ After that it should be ready to go, If your having issues check your HomeAssist
 ```
  ## ToDo
 
-Meter Data is still not working, 
+Meter Data is still not working
