@@ -40,7 +40,7 @@ export function getChannelType(channel: string): ChannelTypes { // Return type i
     }
 }
 
-async function startMeters(){
+export async function startMeters(){
     clientPresonus.meterSubscribe()
 
     clientPresonus.on('meter', (meterData) => {
@@ -199,98 +199,103 @@ export function getChannelSelector(topic: string){
     return selected;
 }
 
-export async function connectPresonus(options: any): Promise<boolean> {
+export async function connectPresonus(options: any): Promise<void> {
     if (!options) {
         console.error("Options not provided. Cannot connect to Presonus.");
-        await updateSensor('system/status', 'Syncing', false);
-        return false;
+        await updateSensor('system/status', 'Error', false);
+        throw new Error("No Presonus Options Provided")
     }
 
-    clientPresonus = new Client({
-        host: options.ip,
-        port: options.port
-    }, {
-        autoreconnect: options.autoreconnect,
-        logLevel: process.env.DEBUG ? 'debug' : 'info'
+    const connectionPromise = new Promise<void>((resolve, reject) => {
+        const clientPresonus = new Client({
+            host: options.ip,
+            port: options.port
+        }, {
+            autoreconnect: options.autoreconnect,
+            logLevel: process.env.DEBUG ? 'debug' : 'info'
+        });
+
+        clientPresonus.on('reconnecting', function () {
+            updateSensor('available', 'Offline', false);
+            updateSensor('system/status', 'Reconnecting', false);
+            console.log('evt: Presonus Reconnecting');
+        });
+
+        clientPresonus.on('closed', function () {
+            updateSensor('avaliable', 'Offline', true);
+            updateSensor('system/status', 'Disconnected', false);
+            clearLocalMain()
+            console.log('evt: Presonus Connection closed');
+
+            if (options.autoreconnect) {
+                const delayMs = options.reconnectPeriod || 5000; // Default to 5000ms (5 seconds) if reconnectPeriod is not set
+                console.log(`Waiting ${delayMs} ms before trying again`);
+                setTimeout(() => {
+                    connectPresonus(options);
+                }, delayMs);
+            }
+        });
+
+        clientPresonus.on('connected', async function () {
+            const channels = clientPresonus.channelCounts;
+            const configData = getConfiguration(channels, options);
+
+            setSyncConfiguration(configData);
+            setMainConfiguration(configData);
+
+            resolve();
+        });
+
+        clientPresonus.on('data', function ({code, data}) {
+            console.log(`Received ${code}:`);
+            console.dir(data);
+
+            //TODO update names???
+            //todo add check configuration
+
+            if (code == "PV" && data.name.includes("select")) {
+                updateMQTTSelect(data);
+            } else if (code == "PV" && data.name.includes("mutegroup")) {
+                syncMuteGroups(data);
+            } else if (code == "PV" && data.name.includes("talkback")) {
+                syncTalkback(data);
+            } else if (code == "PV" && data.name.includes("mute")) {
+                updateMQTTMainMute(data);
+            } else if (code == "PV" && data.name.includes("assign")) {
+                updateMQTTAuxMute(data);
+            } else if (code == "PV" && data.name.includes("solo")) {
+                updateMQTTSolo(data);
+            } else if (code == "PV" && data.name.includes("mainscreen")) {
+                updateMQTTScreen(data);
+            } else if (code == "PV" && data.name.includes("clip")) {
+                updateMQTTPeak(data);
+            } else if (code == "PV" && data.name.includes("ch")) {
+                updateMQTTAuxFader(data);
+            } else if (code == "PC" && data.name.includes("color")) {
+                updateMQTTColor(data);
+            } else if (code == "MS") {
+                updateMainFaders(data);
+            } else {
+                updateMQTTLastAction(data);
+            }
+
+        });
+
+        clientPresonus.connect().then(() => {
+            console.log('Presonus Idle');
+        }).catch(error => {
+            console.error("Error connecting to Presonus:", error);
+            updateSensor('system/status', 'Error', false);
+            reject(error);
+        });
     });
 
-    clientPresonus.on('reconnecting', function () {
-        updateSensor('available', 'Offline', false);
-        updateSensor('system/status', 'Reconnecting', false);
-        console.log('evt: Presonus Reconnecting');
+    const timeoutPromise = new Promise<void>((_, reject) => {
+        const timeoutMs = 10000; // 10 seconds
+        setTimeout(() => {
+            reject(new Error(`Connection attempt timed out after ${timeoutMs / 1000} seconds.`));
+        }, timeoutMs);
     });
 
-    clientPresonus.on('closed', function () {
-        updateSensor('avaliable', 'Offline', true);
-        updateSensor('system/status', 'Disconnected', false);
-        clearLocalMain()
-        console.log('evt: Presonus Connection closed');
-
-        if (options.autoreconnect){
-            const delayMs = options.reconnectPeriod || 5000; // Default to 5000ms (5 seconds) if reconnectPeriod is not set
-            console.log(`Waiting ${delayMs} ms before trying again`);
-            setTimeout(() => {
-                connectPresonus(options);
-            }, delayMs);
-        }
-    });
-
-    clientPresonus.on('connected', async function () {
-        await updateSensor('available', 'Offline', false);
-        await updateSensor('system/status', 'Syncing', false);
-
-        const channels = clientPresonus.channelCounts;
-        const configData = getConfiguration(channels, options);
-
-        setSyncConfiguration(configData) //maybe remove???
-        setMainConfiguration(configData)
-
-        //startMeters()
-
-        await updateSensor('system/status', 'Ready', false);
-        await updateSensor('available', 'Online', false);
-    });
-
-    clientPresonus.on('data', function ({ code, data }) {
-        console.log(`Received ${code}:`);
-        console.dir(data);
-
-        //TODO update names???
-
-        if (code == "PV" && data.name.includes("select")){
-            updateMQTTSelect(data);
-        } else if (code == "PV" && data.name.includes("mutegroup")){
-            syncMuteGroups(data);
-        } else if (code == "PV" && data.name.includes("talkback")){
-            syncTalkback(data);
-        } else if (code == "PV" && data.name.includes("mute")){
-            updateMQTTMainMute(data);
-        } else if (code == "PV" && data.name.includes("assign")){
-            updateMQTTAuxMute(data);
-        } else if (code == "PV" && data.name.includes("solo")){
-            updateMQTTSolo(data);
-        } else if (code == "PV" && data.name.includes("mainscreen")){
-            updateMQTTScreen(data);
-        } else if (code == "PV" && data.name.includes("clip")){
-            updateMQTTPeak(data);
-        } else if (code == "PV" && data.name.includes("ch")){
-            updateMQTTAuxFader(data);
-        } else if (code == "PC" && data.name.includes("color")){
-            updateMQTTColor(data);
-        } else if (code == "MS"){
-            updateMainFaders(data);
-        } else {
-            updateMQTTLastAction(data);
-        }
-
-    });
-
-    clientPresonus.connect().then(() => {
-        console.log('Presonus Idle');
-    }).catch(error => {
-        console.error("Error connecting to Presonus:", error);
-        updateSensor('system/status', 'Error', false);
-    });
-
-    return true;
+    return Promise.race([connectionPromise, timeoutPromise]);
 }

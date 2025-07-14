@@ -2,7 +2,7 @@ import * as fs from 'fs'; // For sync operations
 import {connectMQTT, updateSensor, MQTTEvent, subscribeMQTT, publishDiscoveryData} from "./mqtt";
 import {getSystemJson} from "./system_json"
 import {getDiscoveryJSON, getMeterDiscovory} from "./discovery_json"
-import {connectPresonus} from "./presonus"
+import {connectPresonus, startMeters} from "./presonus"
 import {syncEntities} from "./sync"
 
 let options: any = null; // Declare options in main.ts
@@ -158,6 +158,8 @@ async function main(): Promise<void> {
 
             const topic = `presonus/${options.mqttOptions.model}/#`;
             subscribeMQTT(topic, MQTTEvent);
+
+            startMeters()
 
             await updateSensor('system/status', 'Ready', false);
             await updateSensor('available', 'Online', false);
