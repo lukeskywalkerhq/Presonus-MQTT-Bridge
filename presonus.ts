@@ -13,6 +13,14 @@ import {setMainConfiguration} from "./main"
 
 let clientPresonus: Client | null = null; // Initialize as null
 
+export async function getScene(): Promise<string> {
+    return clientPresonus.currentScene
+}
+
+export async function getProject(): Promise<string> {
+    return clientPresonus.currentProject
+}
+
 export function getChannelType(channel: string): ChannelTypes { // Return type is now ChannelTypes (the keys)
     const upperCaseChannel = channel.toUpperCase();
 
