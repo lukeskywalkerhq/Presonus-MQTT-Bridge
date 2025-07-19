@@ -65,6 +65,7 @@ export async function getLink(channelSelector: ChannelSelector) :Promise<boolean
 }
 
 export async function getMute(channelSelector: ChannelSelector) :Promise<boolean> {
+    console.log(channelSelector)
     return clientPresonus.getMute(channelSelector)
 }
 
@@ -207,7 +208,7 @@ export async function connectPresonus(options: any): Promise<void> {
     }
 
     const connectionPromise = new Promise<void>((resolve, reject) => {
-        const clientPresonus = new Client({
+        clientPresonus = new Client({
             host: options.ip,
             port: options.port
         }, {
