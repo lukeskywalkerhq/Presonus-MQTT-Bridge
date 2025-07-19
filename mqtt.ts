@@ -73,7 +73,6 @@ export function updateMQTTFaderAll(){
 }
 
 export async function updateMQTTMainAndMasterFader(data: any) {
-    //todo add checks
     const mixlist: string[] = ["line", "return", "fxreturn", "talkback", "aux", "fx", "main", "mono", "master"];
 
     for (let i: number = 0; i < mixlist.length; i++) {
@@ -131,9 +130,10 @@ export async function updateMQTTAuxMute(data: any){
 }
 
 export async function updateMQTTMainMute(data: any){
-    const names = data.name.split("/")
-    const channel = names[1].slice(2)
-    const topic :string = 'main/1/line/' + channel + '/mute/state'
+    const names: string[] = data.name.split("/")
+    const channel: string = names[1].slice(2)
+    const type: string = names[0]
+    const topic :string = `main/1/${type}/${channel}/mute/state`
     await updateSensor(topic, data.value ? 'Muted' : 'Unmuted', false)
 }
 

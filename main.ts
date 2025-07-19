@@ -57,18 +57,18 @@ async function sync(): Promise<void> {
 }
 
 async function configure(): Promise<void>{
+    const systemDiscovoryJSON = getSystemJson()
+    await publishDiscoveryData(systemDiscovoryJSON)
+
     while (!configuration){
         console.log("waiting for config file");
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    const systemDiscovoryJSON = getSystemJson()
-    await publishDiscoveryData(systemDiscovoryJSON)
-
     for (const mix in configuration.mixes){
         const mixConfig = configuration.mixes[mix];
         for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
-            if (mixConfig.features.length > 0){
+            if (mixConfig.features.length > 0 && mixConfig.features.enabled){
                 const publishgroup: any[] = getDiscoveryJSON(mixConfig, mixIndex + 1, mixConfig.size);
                 await publishDiscoveryData(publishgroup)
             }

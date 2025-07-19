@@ -139,4 +139,5 @@ export interface inputControl {
     name: string;
     size: number;
     type: string;
+    enabled?: boolean;
 }

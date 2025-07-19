@@ -405,6 +405,7 @@ export function getConfiguration(channels: any, options: any): configuration {
                             name: inputName,
                             size: channels[inputName.toUpperCase()],
                             type: featureName,
+                            enabled: options.controls && options.controls[featureName] !== undefined ? options.controls[featureName] : false
                         }
 
                         mix.features.push(mixFeature)

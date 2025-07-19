@@ -65,7 +65,6 @@ export async function getLink(channelSelector: ChannelSelector) :Promise<boolean
 }
 
 export async function getMute(channelSelector: ChannelSelector) :Promise<boolean> {
-    console.log(channelSelector)
     return clientPresonus.getMute(channelSelector)
 }
 
