@@ -1,5 +1,6 @@
-This is a docker container that translate Presonus StudioLive Commands to MQTT and vice versa.
-Currently Tested with StudioLive Series III 64s
+This is a Program / docker container that translate Presonus StudioLive Commands to MQTT and vice versa.
+This is Specifically made to work with HomeAssistant. It will automatically create the configuration json and
+import it into HomeAssistant via MQTT. Currently Tested with StudioLive Series III 64s, but should work with all models
 
 Still a work in progress
 

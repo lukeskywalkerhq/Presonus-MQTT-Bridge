@@ -2,7 +2,7 @@ import * as fs from 'fs'; // For sync operations
 import {connectMQTT, updateSensor, MQTTEvent, subscribeMQTT, publishDiscoveryData} from "./mqtt";
 import {getSystemJson} from "./system_json"
 import {getDiscoveryJSON, getMeterDiscovory} from "./discovery_json"
-import {connectPresonus, startMeters} from "./presonus"
+import {connectPresonus, startMeters, getScene, getProject} from "./presonus"
 import {syncEntities} from "./sync"
 
 let options: any = null; // Declare options in main.ts
@@ -53,7 +53,11 @@ async function sync(): Promise<void> {
         await syncEntities(configuration.masters, 1)
     }
 
-    //todo add scene an project sync
+    const currentProject: string = await getProject();
+    const currentScene: string = await getScene();
+
+    updateSensor("system/project", currentProject);
+    updateSensor("system/scene", currentScene);
 }
 
 async function configure(): Promise<void>{
@@ -68,7 +72,7 @@ async function configure(): Promise<void>{
     for (const mix in configuration.mixes){
         const mixConfig = configuration.mixes[mix];
         for (let mixIndex = 0; mixIndex < mixConfig.size; mixIndex++) {
-            if (mixConfig.features.length > 0 && mixConfig.features.enabled){
+            if (mixConfig.features.length > 0){
                 const publishgroup: any[] = getDiscoveryJSON(mixConfig, mixIndex + 1, mixConfig.size);
                 await publishDiscoveryData(publishgroup)
             }
@@ -159,7 +163,7 @@ async function main(): Promise<void> {
             const topic = `presonus/${options.mqttOptions.model}/#`;
             subscribeMQTT(topic, MQTTEvent);
 
-            //startMeters()
+            startMeters()
 
             await updateSensor('system/status', 'Ready', false);
             await updateSensor('available', 'Online', false);

@@ -226,54 +226,56 @@ export function getDiscoveryJSON(config: mixGroup, index: number, mixsize: numbe
 
     for (const feature of config.features) {
         for (let inputIndex: number = 0; inputIndex < feature.size; inputIndex++) {
-            let data: any = {};
-            let  type: string
-            let commandType: string
 
-            if(feature.type == "mute"){
-                data = getMuteJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
-                type = "switch"
-                commandType = "mute"
-            }
-            else if (feature.type == "fader"){
-                data = getFaderJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
-                type = "number"
-                commandType = "fader"
-            }
-            else if (feature.type == "solo"){
-                data = getSoloJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize,  feature.size)
-                type = "switch"
-                commandType = "solo"
-            }
-            else if (feature.type == "pan"){
-                //todo find limits
-                data = getPanJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
-                type = "number"
-                commandType = "pan"
-            }
-            else if (feature.type == "link"){
-                data = getLinkJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
-                type = "switch"
-                commandType = "link"
-            }
-            else if (feature.type == "color"){
-                data = getLightJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
-                type = "light"
-                commandType = "color"
-            }
-            else {
-                console.error("feature Type: " + feature.type + "does not exist")
-            }
+            if (feature.enabled){
+                let data: any = {};
+                let  type: string
+                let commandType: string
 
-            const publish: publishLayout = {
-                type: type,
-                mixName: `${mixName}_${mixIndex}`,
-                input: feature.name,
-                commandType: commandType,
-                index: inputIndex,
-                config: data
+
+                if(feature.type == "mute"){
+                    data = getMuteJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
+                    type = "switch"
+                    commandType = "mute"
+                }
+                else if (feature.type == "fader"){
+                    data = getFaderJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
+                    type = "number"
+                    commandType = "fader"
+                }
+                else if (feature.type == "solo"){
+                    data = getSoloJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize,  feature.size)
+                    type = "switch"
+                    commandType = "solo"
+                }
+                else if (feature.type == "pan"){
+                    //todo find limits
+                    data = getPanJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
+                    type = "number"
+                    commandType = "pan"
+                }
+                else if (feature.type == "link"){
+                    data = getLinkJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
+                    type = "switch"
+                    commandType = "link"
+                }
+                else if (feature.type == "color"){
+                    data = getLightJSON(mixName, mixIndex, feature, inputIndex + 1, mixsize, feature.size)
+                    type = "light"
+                    commandType = "color"
+                }
+
+                const publish: publishLayout = {
+                    type: type,
+                    mixName: `${mixName}_${mixIndex}`,
+                    input: feature.name,
+                    commandType: commandType,
+                    index: inputIndex,
+                    config: data
+                }
+
+                publishGroup.push(publish)
             }
-            publishGroup.push(publish)
         }
     }
 

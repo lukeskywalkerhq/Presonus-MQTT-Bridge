@@ -80,8 +80,6 @@ export async function getColor(channelSelector: ChannelSelector) :Promise<string
     return clientPresonus.getColour(channelSelector)
 }
 
-//todo convert all topics to channelselectors in functions
-
 export async function updatePresonusColor(topic: string, state: string) {
     const selected: ChannelSelector = getChannelSelector(topic)
     let hex: string
@@ -102,7 +100,6 @@ export async function updatePresonusColor(topic: string, state: string) {
         }
     }
 
-    console.log(selected, hex, state, topic);
     clientPresonus.setColor(selected, hex);
 }
 
@@ -222,7 +219,7 @@ export async function connectPresonus(options: any): Promise<void> {
         });
 
         clientPresonus.on('closed', function () {
-            updateSensor('avaliable', 'Offline', true);
+            updateSensor('available', 'Offline', true);
             updateSensor('system/status', 'Disconnected', false);
             clearLocalMain()
             console.log('evt: Presonus Connection closed');

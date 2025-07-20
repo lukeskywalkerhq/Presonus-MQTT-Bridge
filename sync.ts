@@ -304,25 +304,26 @@ export async function syncEntities(mixConfig: any, mixIndex: number): Promise<vo
             const topic: string = `${mixConfig.name}/${mixIndex}/${currentFeature.name}/${i + 1}/${currentFeature.type}/state`
             const channel: ChannelSelector = getChannelSelector(mixConfig, mixIndex, i + 1, currentFeature.name)
 
-            if (currentFeature.type == "mute") {
-                await syncMute(topic, channel);
+            if(currentFeature.enabled){
+                if (currentFeature.type == "mute") {
+                    await syncMute(topic, channel);
+                }
+                else if (currentFeature.type == "link") {
+                    await syncLink(topic, channel);
+                }
+                else if (currentFeature.type == "solo"){
+                    await syncSolo(topic, channel);
+                }
+                else if (currentFeature.type == "fader"){
+                    await syncFaders(topic, channel);
+                }
+                else if (currentFeature.type == "pan"){
+                    await syncPan(topic, channel);
+                }
+                else if (currentFeature.type == "color"){
+                    await syncColor(topic, channel);
+                }
             }
-            else if (currentFeature.type == "link") {
-                await syncLink(topic, channel);
-            }
-            else if (currentFeature.type == "solo"){
-                await syncSolo(topic, channel);
-            }
-            else if (currentFeature.type == "fader"){
-                await syncFaders(topic, channel);
-            }
-            else if (currentFeature.type == "pan"){
-                await syncPan(topic, channel);
-            }
-            else if (currentFeature.type == "color"){
-                await syncColor(topic, channel);
-            }
-
         }
     }
 }
