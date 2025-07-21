@@ -77,7 +77,7 @@ Default MQTT port: 1883
 
 After that it should be ready to go, If your having issues check your HomeAssistant MQTT configuration, or logs. On first connection it publishes a lot of configuration data. I added a small delay after every batch to give HomeAssistant some breathing room. If your still having issues increase the pause time. Because it also has to push all the configuration data it will also take a minute or two before it's ready, this should only happen on first connection after the image is running. If you want to speed up the Initialization Process, disable parts you don't need.
 
-Controls are only used if both inputs and mixes are enabled. For example if you wanted to be able to control the mute on line 1, aux 1; then aux, lines, and mutes all need to enabled. If anyone of those are disabled it won't work.
+Controls are only used if both inputs and mixes are enabled. For example if you wanted to be able to control the mute on line 1, aux 1; then aux, lines, and mutes all need to be enabled. If any of those are disabled it won't work.
 
 If you have multiple images running, be sure to change the model and the client id. Model needs to be different and makes to change to how it performs, clientID just needs to be a random set of letters and numbers
 
