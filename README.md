@@ -81,6 +81,8 @@ Controls are only used if both inputs and mixes are enabled. For example if you 
 
 If you have multiple images running, be sure to change the model and the client id. Model needs to be different and makes to change to how it performs, clientID just needs to be a random set of letters and numbers
 
+Make sure you have a mqtt broker running, HomeAssistant has several in the add-ons section
+
  ## ToDo
 
 Meter Data is still not working
