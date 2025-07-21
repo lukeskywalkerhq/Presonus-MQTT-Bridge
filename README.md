@@ -64,7 +64,7 @@ Make sure you create a bind mount located at /app/config/. Inside the bind mount
 "publishDelay": 1000,
 "connectTimeout": 5000,
 "reconnectPeriod": 2000,
-"prefix": "mqtt"
+"prefix": "homeassistant"
 }
 }
 ```
