@@ -163,7 +163,7 @@ async function main(): Promise<void> {
             const topic = `presonus/${options.mqttOptions.model}/#`;
             subscribeMQTT(topic, MQTTEvent);
 
-            startMeters()
+            //startMeters()
 
             await updateSensor('system/status', 'Ready', false);
             await updateSensor('available', 'Online', false);

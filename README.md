@@ -28,7 +28,7 @@ Make sure you create a bind mount located at /app/config/. Inside the bind mount
 ```
 {
 "presonusOptions": {
-"ip": "10.10.11.45",
+"ip": "192.168.1.10",
 "port": 53000,
 "autoreconnect": true,
 "reconnectPeriod": 2000,
@@ -56,9 +56,9 @@ Make sure you create a bind mount located at /app/config/. Inside the bind mount
 }
 },
 "mqttOptions": {
-"url": "mqtt://10.10.11.3:1883",
-"username": "pdlighthousemedia",
-"password": "@Plaog16",
+"url": "mqtt://192.168.1.11:1883",
+"username": "username",
+"password": "password",
 "clientId": "13c2841c",
 "model": "studiolive_64s",
 "publishDelay": 1000,
